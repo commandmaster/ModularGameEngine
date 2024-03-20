@@ -31,5 +31,6 @@ export default class Rigidbody extends ComponentBase {
         this.engineAPI.engine.physicsSystem.addRigidBody(this);
     }
 
+
 }
 

@@ -4,9 +4,13 @@
 //
 // Extra for Experts:
 
-console.log("Hello World");
+// Library Imports
 
-// Imports
+
+
+
+
+// Engine Imports
 import Renderer from './engineModules/systems/renderer.js';
 import InputSystem from './engineModules/systems/inputSystem.js';
 import PhysicsSystem from './engineModules/systems/physicsSystem.js';
@@ -75,6 +79,7 @@ let game = function(p5){
 class EngineAPI {
   constructor(engine){
     this.engine = engine;
+    this.gameEngine = engine;
     this.p5 = engine.p5;
   }
 }
@@ -114,7 +119,7 @@ class Engine {
     this.renderer.Start();
 
     // Load Current Level
-    this.gameObjects = {};
+    this.instantiatedObjects = {};
 
     this.loadLevel("level1");
   }
@@ -122,9 +127,15 @@ class Engine {
   Update(dt){
     this.inputSystem.Update(dt);
     this.physicsSystem.Update(dt);
+    
+    for (const objName in this.instantiatedObjects){
+      this.instantiatedObjects[objName].Update(dt);
+      console.log(objName)
+    }
+
+    this.scriptingSystem.Update(dt);
     this.audioSystem.Update(dt);
     this.particleSystem.Update(dt);
-    this.scriptingSystem.Update(dt);
     this.renderer.Update(dt);
   }
 
@@ -152,11 +163,11 @@ class Engine {
   }
 
   instantiateGameObject(obj){
-    const gameObject = new GameObject(this.engineAPI, obj);
-    this.gameObjects[obj.name] = gameObject;
-
+    const gameObjectInstance = new GameObject(this.engineAPI, obj);
+    
     gameObject.Preload().then(() => {
       gameObject.Start();
+      this.instantiatedObjects[obj.name + '_' + crypto.randomUUID()] = gameObjectInstance;
     });
 
   }
