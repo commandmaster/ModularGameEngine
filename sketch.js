@@ -1,17 +1,12 @@
-// Mini Game - Interactive Scene
+// 
 // Bennett Friesen
-// 2/29/2024
+// 
 //
 // Extra for Experts:
-// I built a game engine from scratch using p5.js. I also created documentation for the game engine located at https://commandmaster.github.io/EngineDocs/ (the engine is still in development).
-// I also used p5js to add html document elements to the game.
-// You can ignore the engine code if you would like and just look at the code located in the game state and other scripts. Here is where you will find the code I used to actually develop the games you can play.
 
-
+console.log("Hello World");
 
 // Imports
-import ModuleBase from './engineModules/systems/moduleBase.js';
-
 import Renderer from './engineModules/systems/renderer.js';
 import InputSystem from './engineModules/systems/inputSystem.js';
 import PhysicsSystem from './engineModules/systems/physicsSystem.js';
@@ -19,6 +14,7 @@ import ScriptingSystem from './engineModules/systems/scriptingSystem.js';
 import AudioSystem from './engineModules/systems/audioSystem.js';
 import ParticleSystem from './engineModules/systems/particleSystem.js';
 
+import GameObject, {Camera} from './engineModules/engineObjects.js';
 
 
 /**
@@ -33,24 +29,45 @@ function waitForCondition(condition) {
         clearInterval(intervalId);
         resolve();
       }
-    }, 100);
+    }, 50);
   });
 }
 
 
+let preloadDone = false;
+let firstUpdate = false
 let game = function(p5){
   let gameEngine = new Engine(p5);
 
   p5.preload = async function(){
-    gameEngine.Preload();
+    await gameEngine.Preload();
+    preloadDone = true;
   };
 
   p5.setup = function(){
-    gameEngine.Start();
+    waitForCondition(() => {return preloadDone}).then(() => {
+      gameEngine.Start();
+    });
+    
   }
 
   p5.draw = function(){
-    gameEngine.Update();
+    // avoid issues where the draw loop will run before the preload is done and setup is called
+    // it will run aproximately 50 ms after setup is called
+
+    if (preloadDone) {
+      if (!firstUpdate){
+        setTimeout(() => {
+          gameEngine.Update(p5.deltaTime);
+          firstUpdate = true;
+        }, 100);
+        
+      }
+
+      else {
+        gameEngine.Update(p5.deltaTime);
+      }
+    }
   };
   
 }
@@ -82,28 +99,71 @@ class Engine {
       this.audioSystem.Preload(),
       this.particleSystem.Preload(),
       this.scriptingSystem.Preload(),
-      this.renderer.Preload()
+      this.renderer.Preload(),
+      this.loadGameConfig()
     ]);
   }
 
   Start(){
+    // Load Engine Modules
     this.inputSystem.Start();
     this.physicsSystem.Start();
     this.audioSystem.Start();
     this.particleSystem.Start();
     this.scriptingSystem.Start();
     this.renderer.Start();
+
+    // Load Current Level
+    this.gameObjects = {};
+
+    this.loadLevel("level1");
   }
 
-  Update(){
-    this.inputSystem.Update();
-    this.physicsSystem.Update();
-    this.audioSystem.Update();
-    this.particleSystem.Update();
-    this.scriptingSystem.Update();
-    this.renderer.Update();
+  Update(dt){
+    this.inputSystem.Update(dt);
+    this.physicsSystem.Update(dt);
+    this.audioSystem.Update(dt);
+    this.particleSystem.Update(dt);
+    this.scriptingSystem.Update(dt);
+    this.renderer.Update(dt);
   }
+
+  loadGameConfig(){
+    return new Promise((resolve, reject) => {
+      this.p5.loadJSON("./gameConfig.json", (data) => {
+        this.gameConfig = data;
+        resolve(data);
+      });
+    });
+  }
+
+  loadLevel(levelName){
+    const level = this.gameConfig.levels[levelName];
+
+    if (level === undefined){
+      console.error(`Level ${levelName} not found in gameConfig`);
+      return;
+    }
+
+    for (const objName in level.gameObjects){
+      const obj = level.gameObjects[objName];
+      this.instantiateGameObject(obj);
+    }
+  }
+
+  instantiateGameObject(obj){
+    const gameObject = new GameObject(this.engineAPI, obj);
+    this.gameObjects[obj.name] = gameObject;
+
+    gameObject.Preload().then(() => {
+      gameObject.Start();
+    });
+
+  }
+
+
 }
+
 
 window.addEventListener("load", async () => {
   new p5(game);

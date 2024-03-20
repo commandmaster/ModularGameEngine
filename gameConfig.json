@@ -1,0 +1,26 @@
+{
+    "levels":{
+        "level1":{
+            "gameObjects":{
+                "player1":{
+                    "name":"player1",
+                    "components":{
+                        "rigidBody":{
+                            "colliders":[
+                                {
+                                    "type":"box",
+                                    "width":50,
+                                    "height":50
+
+                                }
+                            ]
+                        }
+                    }
+
+
+                }
+            }
+        }
+        
+    }
+}

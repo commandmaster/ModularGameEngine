@@ -15,7 +15,7 @@ export default class ModuleBase {
         return;
     }
 
-    Update() {
+    Update(dt) {
         return;
     }
 }
