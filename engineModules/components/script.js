@@ -6,8 +6,14 @@ export default class Script extends ComponentBase {
     }
 
     Preload(){
-        import(componentConfig.scriptPath).then((module) => {
-            this.script = new module.default(engineAPI, componentConfig);
-        });
+        this.scriptInstance = new this.componentConfig.scriptClass(this.engineAPI);
+    }
+
+    Start(){
+        this.scriptInstance.Start();
+    }
+
+    Update(){
+        this.scriptInstance.Update();
     }
 }

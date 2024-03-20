@@ -1,14 +1,17 @@
 export default class ModuleBase {
-    constructor(engine) {
-        this.engine = engine;
-        this.p5 = engine.p5;
+    constructor(engineAPI) {
+        this.engineAPI = engineAPI;
+        this.engine = engineAPI.engine;
+        this.p5 = engineAPI.engine.p5;
     }
 
     Preload() {
-        return;
+        return new Promise((resolve, reject) => { 
+            resolve();
+        });
     }
 
-    Setup() {
+    Start() {
         return;
     }
 

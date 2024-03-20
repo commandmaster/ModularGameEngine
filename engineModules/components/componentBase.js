@@ -10,7 +10,9 @@ export default class ComponentBase{
     }
 
     Preload(){
-        return;
+        return new Promise((resolve, reject) => { 
+            resolve();
+        });
     }
 
     Start(){

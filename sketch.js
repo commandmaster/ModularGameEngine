@@ -42,44 +42,66 @@ let game = function(p5){
   let gameEngine = new Engine(p5);
 
   p5.preload = async function(){
-    gameEngine.preload();
+    gameEngine.Preload();
   };
 
   p5.setup = function(){
-    gameEngine.start();
+    gameEngine.Start();
   }
 
   p5.draw = function(){
-    gameEngine.update();
+    gameEngine.Update();
   };
   
 }
 
-
+class EngineAPI {
+  constructor(engine){
+    this.engine = engine;
+    this.p5 = engine.p5;
+  }
+}
 
 class Engine {
   constructor(p5){
     this.p5 = p5;
+    this.engineAPI = new EngineAPI(this);
 
-    this.renderer = new Renderer(this);
-    this.inputSystem = new InputSystem(this);
-    this.physicsSystem = new PhysicsSystem(this);
-    this.scriptingSystem = new ScriptingSystem(this);
-    this.audioSystem = new AudioSystem(this);
-    this.particleSystem = new ParticleSystem(this);
-
+    this.renderer = new Renderer(this.engineAPI);
+    this.inputSystem = new InputSystem(this.engineAPI);
+    this.physicsSystem = new PhysicsSystem(this.engineAPI);
+    this.scriptingSystem = new ScriptingSystem(this.engineAPI);
+    this.audioSystem = new AudioSystem(this.engineAPI);
+    this.particleSystem = new ParticleSystem(this.engineAPI);
   }
 
-  preload(){
-  
+  async Preload(){
+    await Promise.all([
+      this.inputSystem.Preload(),
+      this.physicsSystem.Preload(),
+      this.audioSystem.Preload(),
+      this.particleSystem.Preload(),
+      this.scriptingSystem.Preload(),
+      this.renderer.Preload()
+    ]);
   }
 
-  start(){
-
+  Start(){
+    this.inputSystem.Start();
+    this.physicsSystem.Start();
+    this.audioSystem.Start();
+    this.particleSystem.Start();
+    this.scriptingSystem.Start();
+    this.renderer.Start();
   }
 
-  update(){
-
+  Update(){
+    this.inputSystem.Update();
+    this.physicsSystem.Update();
+    this.audioSystem.Update();
+    this.particleSystem.Update();
+    this.scriptingSystem.Update();
+    this.renderer.Update();
   }
 }
 
