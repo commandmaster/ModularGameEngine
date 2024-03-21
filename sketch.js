@@ -82,13 +82,13 @@ class EngineAPI {
     this.engine = engine;
     this.gameEngine = engine;
     this.p5 = engine.p5;
+    this.gameConfig = engine.gameConfig;
   }
 }
 
 class Engine {
   constructor(p5){
     this.p5 = p5;
-    this.engineAPI = new EngineAPI(this);
   }
 
   async Preload(){
@@ -98,6 +98,8 @@ class Engine {
     this.prefabs = {};
     this.instantiatedObjects = {};
     this.loadPrefabs(gameConfig); // gameConfig is loaded in loadGameConfigAsync
+
+    this.engineAPI = new EngineAPI(this);
 
     this.renderer = new Renderer(this.engineAPI, gameConfig);
     this.inputSystem = new InputSystem(this.engineAPI, gameConfig);
@@ -181,17 +183,18 @@ class Engine {
       for (const componentName in obj.overrideComponents){
         objToInstantiate.components[componentName] = obj.overrideComponents[componentName];
       }
+      objToInstantiate.name = obj.name;
 
-      this.instantiateGameObject(objToInstantiate);
+      this.instantiateSceneObject(objToInstantiate);
     }
   }
 
-  instantiateGameObject(obj){
+  instantiateSceneObject(obj){
     const gameObjectInstance = new GameObjectInstance(this.engineAPI, obj);
     
     gameObjectInstance.Preload().then(() => {
       gameObjectInstance.Start();
-      this.instantiatedObjects[obj.name + '_' + crypto.randomUUID()] = gameObjectInstance;
+      this.instantiatedObjects[obj.name] = gameObjectInstance;
     });
 
   }
