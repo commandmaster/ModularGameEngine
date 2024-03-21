@@ -4,7 +4,7 @@ import Script from "./components/script.js";
 import Animator from "./components/animator.js";
 
 
-export default class GameObject {
+export default class GameObjectInstance {
     constructor(engineAPI, gameObjectConfig) {
         this.engineAPI = engineAPI;
         this.gameObjectConfig = gameObjectConfig;

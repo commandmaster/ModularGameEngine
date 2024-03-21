@@ -1,6 +1,6 @@
-import MonoBehaviour from __dirname + '/engineModules/monobehaviour.js';
+const { MonoBehaviour } = ScriptingAPI;
 
-class <%= className %> extends MonoBehaviour {
+export default class <%= className %> extends MonoBehaviour {
     constructor(engineAPI) {
         super(engineAPI);
     }
@@ -13,3 +13,4 @@ class <%= className %> extends MonoBehaviour {
         
     }
 }
+

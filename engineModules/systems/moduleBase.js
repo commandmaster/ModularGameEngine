@@ -1,8 +1,9 @@
 export default class ModuleBase {
-    constructor(engineAPI) {
+    constructor(engineAPI, gameConfig) {
         this.engineAPI = engineAPI;
         this.engine = engineAPI.engine;
         this.p5 = engineAPI.engine.p5;
+        this.gameConfig = gameConfig;
     }
 
     Preload() {

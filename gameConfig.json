@@ -1,26 +1,59 @@
 {
-    "levels":{
+    "scenes":{
         "level1":{
             "gameObjects":{
                 "player1":{
                     "name":"player1",
-                    "components":{
-                        "rigidBody":{
-                            "colliders":[
-                                {
-                                    "type":"box",
-                                    "width":50,
-                                    "height":50
-
-                                }
-                            ]
+                    "prefab":"player",
+                    "overideComponents":{
+                        "transform":{
+                            "position":{
+                                "x":100,
+                                "y":100
+                            },
+                            "rotation":0,
+                            "scale":{
+                                "x":1,
+                                "y":1
+                            }
                         }
                     }
-
-
                 }
             }
         }
         
+    },
+    "prefabs":{
+        "player":{
+            "name":"player",
+            "components":{
+                "transform":{
+                    "position":{
+                        "x":0,
+                        "y":0
+                    },
+                    "rotation":0,
+                    "scale":{
+                        "x":1,
+                        "y":1
+                    }
+                },
+                "rigidBody":{
+                    "colliders":[
+                        {
+                            "type":"box",
+                            "width":50,
+                            "height":50
+
+                        }
+                    ]
+                }
+            }
+        }
+    },
+    "renderSettings":{
+        "backgroundColor":"black",
+        "canvasSizeX":800,
+        "canvasSizeY":600
     }
 }

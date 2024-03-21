@@ -1,6 +1,6 @@
 import ComponentBase from './componentBase.js';
 
-export class Animator extends ComponentBase{
+export default class Animator extends ComponentBase{
     constructor(engineAPI, componentConfig) {
         super(engineAPI, componentConfig);
     }

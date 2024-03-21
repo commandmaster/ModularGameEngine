@@ -1,4 +1,4 @@
-import ComponentBase from "./componentBase";
+import ComponentBase from "./componentBase.js";
 
 export default class Rigidbody extends ComponentBase {
     constructor(engineAPI, componentConfig) {

@@ -19,6 +19,7 @@ import AudioSystem from './engineModules/systems/audioSystem.js';
 import ParticleSystem from './engineModules/systems/particleSystem.js';
 
 import GameObject, {Camera} from './engineModules/engineObjects.js';
+import GameObjectInstance from './engineModules/engineObjects.js';
 
 
 /**
@@ -88,24 +89,31 @@ class Engine {
   constructor(p5){
     this.p5 = p5;
     this.engineAPI = new EngineAPI(this);
-
-    this.renderer = new Renderer(this.engineAPI);
-    this.inputSystem = new InputSystem(this.engineAPI);
-    this.physicsSystem = new PhysicsSystem(this.engineAPI);
-    this.scriptingSystem = new ScriptingSystem(this.engineAPI);
-    this.audioSystem = new AudioSystem(this.engineAPI);
-    this.particleSystem = new ParticleSystem(this.engineAPI);
   }
 
   async Preload(){
-    await Promise.all([
+    const gameConfig = await this.loadGameConfigAsync();
+
+    // Setup Objects
+    this.prefabs = {};
+    this.instantiatedObjects = {};
+    this.loadPrefabs(gameConfig); // gameConfig is loaded in loadGameConfigAsync
+
+    this.renderer = new Renderer(this.engineAPI, gameConfig);
+    this.inputSystem = new InputSystem(this.engineAPI, gameConfig);
+    this.physicsSystem = new PhysicsSystem(this.engineAPI, gameConfig);
+    this.scriptingSystem = new ScriptingSystem(this.engineAPI, gameConfig);
+    this.audioSystem = new AudioSystem(this.engineAPI, gameConfig);
+    this.particleSystem = new ParticleSystem(this.engineAPI, gameConfig);
+
+    return Promise.all([
       this.inputSystem.Preload(),
       this.physicsSystem.Preload(),
       this.audioSystem.Preload(),
       this.particleSystem.Preload(),
       this.scriptingSystem.Preload(),
       this.renderer.Preload(),
-      this.loadGameConfig()
+      this.loadGameConfigAsync()
     ]);
   }
 
@@ -118,10 +126,7 @@ class Engine {
     this.scriptingSystem.Start();
     this.renderer.Start();
 
-    // Load Current Level
-    this.instantiatedObjects = {};
-
-    this.loadLevel("level1");
+    this.loadScene("level1");
   }
 
   Update(dt){
@@ -139,7 +144,7 @@ class Engine {
     this.renderer.Update(dt);
   }
 
-  loadGameConfig(){
+  loadGameConfigAsync(){
     return new Promise((resolve, reject) => {
       this.p5.loadJSON("./gameConfig.json", (data) => {
         this.gameConfig = data;
@@ -148,25 +153,44 @@ class Engine {
     });
   }
 
-  loadLevel(levelName){
-    const level = this.gameConfig.levels[levelName];
+  loadPrefabs(gameConfig){
+    for (const prefabName in gameConfig.prefabs){
+      const prefab = gameConfig.prefabs[prefabName];
+      this.prefabs[prefabName] = prefab;
+    }
+  }
 
-    if (level === undefined){
-      console.error(`Level ${levelName} not found in gameConfig`);
+  loadScene(sceneName){
+    const scene = this.gameConfig.scenes[sceneName];
+
+    if (scene === undefined){
+      console.error(`Scene ${sceneName} not found in gameConfig`);
       return;
     }
 
-    for (const objName in level.gameObjects){
-      const obj = level.gameObjects[objName];
-      this.instantiateGameObject(obj);
+    for (const objName in scene.gameObjects){
+      const obj = scene.gameObjects[objName];
+      const objPrefab = this.prefabs[obj.prefab];
+
+      if (objPrefab === undefined || objPrefab === null){
+        console.error(`Prefab ${obj.prefab} not found in gameConfig prefabs`);
+        continue;
+      }
+
+      let objToInstantiate = JSON.parse(JSON.stringify(objPrefab)); // deep clone the prefab
+      for (const componentName in obj.overrideComponents){
+        objToInstantiate.components[componentName] = obj.overrideComponents[componentName];
+      }
+
+      this.instantiateGameObject(objToInstantiate);
     }
   }
 
   instantiateGameObject(obj){
-    const gameObjectInstance = new GameObject(this.engineAPI, obj);
+    const gameObjectInstance = new GameObjectInstance(this.engineAPI, obj);
     
-    gameObject.Preload().then(() => {
-      gameObject.Start();
+    gameObjectInstance.Preload().then(() => {
+      gameObjectInstance.Start();
       this.instantiatedObjects[obj.name + '_' + crypto.randomUUID()] = gameObjectInstance;
     });
 

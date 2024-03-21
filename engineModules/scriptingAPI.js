@@ -1,4 +1,4 @@
-export default class MonoBehaviour {
+class MonoBehaviour {
     constructor(engineAPI) {
         this.engineAPI = engineAPI;
     }
@@ -10,4 +10,10 @@ export default class MonoBehaviour {
     Update(){
 
     }
+}
+
+
+
+class ScriptingAPI{
+    static MonoBehaviour = MonoBehaviour;
 }

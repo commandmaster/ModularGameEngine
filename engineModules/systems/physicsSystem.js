@@ -7,8 +7,8 @@ const Engine = Matter.Engine,
 
 
 export default class PhysicsSystem extends ModuleBase{
-    constructor(engineAPI) {
-        super(engineAPI);
+    constructor(engineAPI, gameConfig) {
+        super(engineAPI, gameConfig);
     }
 
     Start() {
