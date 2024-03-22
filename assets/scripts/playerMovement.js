@@ -7,6 +7,7 @@ export default class PlayerMovement extends ScriptingAPI.MonoBehaviour {
 
     Start() {
         console.log("PlayerMovement Start");
+        console.log(this.gameObject)
     }
 
     Update() {

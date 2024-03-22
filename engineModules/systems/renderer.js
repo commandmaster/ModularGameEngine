@@ -27,6 +27,26 @@ class RendererLoaders{
         });
     }
 
+    async preloadAnimConfigs(gameConfig){
+        return new Promise(async (resolve, reject) => {
+            try {
+                const animations = {};
+                const promises = []
+
+                for (const animName in gameConfig.assets.animations){
+                    const anim = gameConfig.assets.animations[animName];
+                    const animConfig = await this.loadJSONAsync(anim.pathToAnimationConfig);
+                    animations[animName] = animConfig;
+                }
+
+                await Promise.all(promises);
+                resolve(animations);
+            } catch (err) {
+                reject(err);
+            }
+        });
+    }
+
     async preloadAnimSheets(gameConfig){
         return new Promise(async (resolve, reject) => {
             try {
@@ -98,6 +118,7 @@ export default class Renderer extends ModuleBase{
         return new Promise(async (resolve, reject) => {
             try{
                 this.stateMachines = await this.rendererLoaders.preloadStateMachines(this.gameConfig);
+                this.animationConfigs = await this.rendererLoaders.preloadAnimConfigs(this.gameConfig);
                 this.animationsSheets = await this.rendererLoaders.preloadAnimSheets(this.gameConfig);
                 this.textures = await this.rendererLoaders.preloadTextures(this.gameConfig);
 

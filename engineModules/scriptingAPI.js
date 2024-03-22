@@ -25,6 +25,17 @@ class MonoBehaviour {
     }
 }
 
+function getObjectByName(engineAPI, name){
+    return engineAPI.gameEngine.instantiatedObjects[name];
+}
+
+function getComponentByName(engineAPI, objectName, componentName){
+    return engineAPI.gameEngine.instantiatedObjects[objectName].components[componentName];
+}
+
+function getComponentFromGameObject(gameObject, componentName){
+    return gameObject.components[componentName];
+}
 
 
 
@@ -60,4 +71,7 @@ function waitForCondition(condition, timeBetweenChecks = 50){
 class ScriptingAPI{
     static MonoBehaviour = MonoBehaviour;
     static waitForCondition = waitForCondition;
+    static getObjectByName = getObjectByName;
+    static getComponentByName = getComponentByName;
+    static getComponentFromGameObject = getComponentFromGameObject;
 }

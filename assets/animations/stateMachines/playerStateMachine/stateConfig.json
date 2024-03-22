@@ -10,6 +10,7 @@
             "transitions":[
                 {
                     "conditionType":"bool",
+                    "defaultValue":true,
                     "conditionName":"atRest",
                     "targetAnim":"playerIdle",
                     "transitionTime":0.1,
@@ -17,5 +18,6 @@
                 }
             ]
         }
-    }
+    },
+    "defaultState":"playerIdle"
 }

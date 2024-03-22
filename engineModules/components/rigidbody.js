@@ -1,8 +1,8 @@
 import ComponentBase from "./componentBase.js";
 
 export default class Rigidbody extends ComponentBase {
-    constructor(engineAPI, componentConfig) {
-        super(engineAPI, componentConfig);
+    constructor(engineAPI, componentConfig, gameObject) {
+        super(engineAPI, componentConfig, gameObject);
     }
 
     Start(){

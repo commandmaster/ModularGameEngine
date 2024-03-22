@@ -6,7 +6,7 @@
                 "stateMachine":"playerStateMachine",
                 "animationName":"playerIdle",
                 "pathToSpriteSheet":"/assets/animations/animations/playerIdle/playerIdle.png",
-                "pathToAnimationConfig":"/assets/animations/animations/animConfig.json"
+                "pathToAnimationConfig":"/assets/animations/animations/playerIdle/animConfig.json"
             }
         },
         "stateMachines":{
@@ -34,8 +34,9 @@
                 "player1":{
                     "name":"player1",
                     "prefab":"player",
+                    "parent":"world",
                     "overideComponents":{
-                        "transform":{
+                        "Transform":{
                             "position":{
                                 "x":100,
                                 "y":100
@@ -56,7 +57,7 @@
         "player":{
             "name":"player",
             "components":{
-                "transform":{
+                "Transform":{
                     "position":{
                         "x":0,
                         "y":0
@@ -67,24 +68,25 @@
                         "y":1
                     }
                 },
-                "rigidBody":{
+                "RigidBody":{
                     "colliders":[
                         {
                             "type":"box",
                             "width":50,
-                            "height":50
-
+                            "height":50,
+                            "offsetX":0,
+                            "offsetY":0
                         }
                     ]
                 },
-                "scriptingComponent":{
+                "ScriptingComponent":{
                     "scripts":[
                         {
                             "name":"playerMovement"
                         }
                     ]
                 },
-                "stateMachine":{
+                "StateMachine":{
                     "stateMachineName":"playerStateMachine"
                 }
             }

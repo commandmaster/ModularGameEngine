@@ -122,10 +122,10 @@ class Engine {
     // Load Engine Modules
     this.inputSystem.Start();
     this.physicsSystem.Start();
-    this.audioSystem.Start();
     this.particleSystem.Start();
     this.scriptingSystem.Start();
     this.renderer.Start();
+    this.audioSystem.Start();
 
     this.loadScene("level1");
   }
@@ -160,7 +160,7 @@ class Engine {
     }
   }
 
-  loadScene(sceneName){
+  async loadScene(sceneName){
     const scene = this.gameConfig.scenes[sceneName];
 
     if (scene === undefined){
@@ -181,20 +181,28 @@ class Engine {
       for (const componentName in obj.overrideComponents){
         objToInstantiate.components[componentName] = obj.overrideComponents[componentName];
       }
-      objToInstantiate.name = obj.name;
 
-      this.instantiateSceneObject(objToInstantiate);
+      objToInstantiate.name = obj.name;
+      objToInstantiate.parent = obj.parent;
+
+      this.instantiatedObjects[obj.name] = await this.instantiateSceneObject(objToInstantiate);
+    }
+
+    // Start all objects
+    for (const objName in this.instantiatedObjects){
+      this.instantiatedObjects[objName].Start();
     }
   }
 
-  instantiateSceneObject(obj){
-    const gameObjectInstance = new GameObjectInstance(this.engineAPI, obj);
-    
-    gameObjectInstance.Preload().then(() => {
-      gameObjectInstance.Start();
-      this.instantiatedObjects[obj.name] = gameObjectInstance;
-    });
 
+  instantiateSceneObject(obj){
+    return new Promise((resolve, reject) => {
+      const gameObjectInstance = new GameObjectInstance(this.engineAPI, obj);
+    
+      gameObjectInstance.Preload().then(() => {
+        resolve(gameObjectInstance);
+      });
+    });
   }
 
 

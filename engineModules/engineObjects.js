@@ -12,6 +12,7 @@ export class GameObjectInstance {
 
         this.gameEngine = engineAPI.gameEngine;
         this.p5 = engineAPI.gameEngine.p5;
+        this.parent = gameObjectConfig.parent;
     }
 
     async Preload(){
@@ -41,19 +42,19 @@ export class GameObjectInstance {
 
     addComponent(componentName, componentConfig){
         if (componentName === "Transform"){
-            this.components[componentName] = new Transform(this.engineAPI, componentConfig);
+            this.components[componentName] = new Transform(this.engineAPI, componentConfig, this);
         }
 
         if (componentName === "Rigidbody"){
-            this.components[componentName] = new Rigidbody(this.engineAPI, componentConfig);
+            this.components[componentName] = new Rigidbody(this.engineAPI, componentConfig, this);
         }
 
         if (componentName === "StateMachine"){
-            this.components[componentName] = new StateMachine(this.engineAPI, componentConfig);
+            this.components[componentName] = new StateMachine(this.engineAPI, componentConfig, this);
         }
 
-        if (componentName === "scriptingComponent"){
-            this.components[componentName] = new Script(this.engineAPI, componentConfig);
+        if (componentName === "ScriptingComponent"){
+            this.components[componentName] = new Script(this.engineAPI, componentConfig, this);
         }
     }
 
