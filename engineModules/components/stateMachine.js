@@ -111,8 +111,8 @@ class Animation{
         const sy = this.frames[frameIndex].sy;
         const sWidth = this.frames[frameIndex].sWidth;
         const sHeight = this.frames[frameIndex].sHeight;
-
+        const rotation = ScriptingAPI.getComponentFromGameObject(this.gameObject, "Transform").worldRotation;
     
-        this.engineAPI.engine.renderer.addRenderTask(new RendererAPI.AnimationRenderTask(this.engineAPI, {img, dx, dy, dWidth, dHeight, sx, sy, sWidth, sHeight}));
+        this.engineAPI.engine.renderer.addRenderTask(new RendererAPI.AnimationRenderTask(this.engineAPI, {img, dx, dy, dWidth, dHeight, sx, sy, sWidth, sHeight, rotation}));
     }
 }

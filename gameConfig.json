@@ -58,7 +58,7 @@
                                 "x":300,
                                 "y":100
                             },
-                            "rotation":0,
+                            "rotation":90,
                             "scale":{
                                 "x":1,
                                 "y":1
@@ -69,12 +69,30 @@
                 "player2":{
                     "name":"player2",
                     "prefab":"player",
-                    "parent":"world",
+                    "parent":"player1",
                     "overideComponents":{
                         "Transform":{
                             "position":{
                                 "x":200,
-                                "y":200
+                                "y":0
+                            },
+                            "rotation":-45,
+                            "scale":{
+                                "x":1,
+                                "y":1
+                            }
+                        }
+                    }
+                },
+                "player3":{
+                    "name":"player3",
+                    "prefab":"player",
+                    "parent":"player2",
+                    "overideComponents":{
+                        "Transform":{
+                            "position":{
+                                "x":400,
+                                "y":0
                             },
                             "rotation":0,
                             "scale":{

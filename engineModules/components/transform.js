@@ -8,6 +8,7 @@ export default class Transform extends ComponentBase {
         this.localRotation = this.componentConfig.rotation;
         this.localScale = this.componentConfig.scale;
 
+
         this.worldPosition = this.localPosition;
         this.worldRotation = this.localRotation;
         this.worldScale = this.localScale;
@@ -33,8 +34,12 @@ export default class Transform extends ComponentBase {
             const parentPosition = this.parentTransform.worldPosition;
             const parentRotation = this.parentTransform.worldRotation;
             const degToRad = Math.PI / 180;
-            rotatedX = (this.localPosition.x - parentPosition.x) * Math.cos(parentRotation * degToRad) - (this.localPosition.y - parentPosition.y) * Math.sin(parentRotation * degToRad) + parentPosition.x;
-            rotatedY = (this.localPosition.x - parentPosition.x) * Math.sin(parentRotation * degToRad) + (this.localPosition.y - parentPosition.y) * Math.cos(parentRotation * degToRad) + parentPosition.y;
+
+            const x1 = parentPosition.x + this.localPosition.x;
+            const y1 = parentPosition.y + this.localPosition.y;
+
+            const rotatedX = (x1 - parentPosition.x) * Math.cos(parentRotation * degToRad) - (y1 - parentPosition.y) * Math.sin(parentRotation * degToRad) + parentPosition.x;
+            const rotatedY = (x1 - parentPosition.x) * Math.sin(parentRotation * degToRad) + (y1 - parentPosition.y) * Math.cos(parentRotation * degToRad) + parentPosition.y;
 
             this.worldPosition = {x: rotatedX, y: rotatedY}
 

@@ -118,7 +118,7 @@ class BaseRenderTask{
 }
 
 class AnimationRenderTask extends BaseRenderTask{
-    constructor(engineAPI, {img, dx, dy, dWidth, dHeight, sx, sy, sWidth, sHeight}){
+    constructor(engineAPI, {img, dx, dy, dWidth, dHeight, sx, sy, sWidth, sHeight, rotation}){
         super(engineAPI);
         this.img = img;
         this.dx = dx;
@@ -128,12 +128,15 @@ class AnimationRenderTask extends BaseRenderTask{
         this.sx = sx;
         this.sy = sy;
         this.sWidth = sWidth;
-        this.sHeight = sHeight;        
+        this.sHeight = sHeight;      
+        this.rotation = rotation;  
     }
 
     render(){
         this.engineAPI.p5.push();
-        this.engineAPI.p5.image(this.img, this.dx, this.dy, this.dWidth, this.dHeight, this.sx, this.sy, this.sWidth, this.sHeight);
+        this.engineAPI.p5.translate(this.dx, this.dy);
+        this.engineAPI.p5.rotate(this.rotation);
+        this.engineAPI.p5.image(this.img, 0, 0, this.dWidth, this.dHeight, this.sx, this.sy, this.sWidth, this.sHeight);
         this.engineAPI.p5.pop();
     }
 }
@@ -184,6 +187,7 @@ export default class Renderer extends ModuleBase{
         // P5 Draw Configuation
         this.p5.imageMode(this.p5.CENTER);
         this.p5.rectMode(this.p5.CENTER);
+        this.p5.angleMode(this.p5.DEGREES);
 
         // Canvas Reszing
         if (this.p5.width !== this.p5.windowWidth || this.p5.height !== this.p5.windowHeight) this.p5.resizeCanvas(this.p5.windowWidth, this.p5.windowHeight);
