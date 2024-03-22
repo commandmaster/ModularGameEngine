@@ -12,7 +12,6 @@ export default class PhysicsSystem extends ModuleBase{
     }
 
     Start() {
-        console.log(Engine);
         this.matterEngine = Engine.create();
         this.matterWorld = this.matterEngine.world;
         this.debugMode = false;

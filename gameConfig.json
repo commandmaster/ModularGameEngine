@@ -1,4 +1,33 @@
 {
+    "assets":{
+        "assetsPath":"/assets",
+        "animations":{
+            "playerIdle":{
+                "stateMachine":"playerStateMachine",
+                "animationName":"playerIdle",
+                "pathToSpriteSheet":"/assets/animations/animations/playerIdle/playerIdle.png",
+                "pathToAnimationConfig":"/assets/animations/animations/animConfig.json"
+            }
+        },
+        "stateMachines":{
+            "playerStateMachine":{
+                "stateMachineName":"playerStateMachine",
+                "pathToStateMachineConfig":"/assets/animations/stateMachines/playerStateMachine/stateConfig.json"
+            }
+        },
+        "textures":[
+             
+        ],
+        "audio":[
+
+        ],
+        "fonts":[
+
+        ],
+        "scripts":[
+            "playerMovement"
+        ]
+    },
     "scenes":{
         "level1":{
             "gameObjects":{
@@ -47,6 +76,16 @@
 
                         }
                     ]
+                },
+                "scriptingComponent":{
+                    "scripts":[
+                        {
+                            "name":"playerMovement"
+                        }
+                    ]
+                },
+                "stateMachine":{
+                    "stateMachineName":"playerStateMachine"
                 }
             }
         }

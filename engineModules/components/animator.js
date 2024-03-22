@@ -4,4 +4,8 @@ export default class Animator extends ComponentBase{
     constructor(engineAPI, componentConfig) {
         super(engineAPI, componentConfig);
     }
+
+    Preload() {
+       
+    }
 }

@@ -4,7 +4,8 @@ import Script from "./components/script.js";
 import Animator from "./components/animator.js";
 
 
-export default class GameObjectInstance {
+
+export class GameObjectInstance {
     constructor(engineAPI, gameObjectConfig) {
         this.engineAPI = engineAPI;
         this.gameObjectConfig = gameObjectConfig;
@@ -14,11 +15,21 @@ export default class GameObjectInstance {
     }
 
     async Preload(){
-        return new Promise((resolve, reject) => { 
+        return new Promise(async (resolve, reject) => { 
             this.initializeComponents();
-            resolve();
+            const preloadPromises = [];
+            for (const componentName in this.components) {
+                preloadPromises.push(this.components[componentName].Preload());
+            }
+            try {
+                await Promise.all(preloadPromises);
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
         });
     }
+    
 
     initializeComponents(){
         this.components = {};
@@ -37,21 +48,25 @@ export default class GameObjectInstance {
             this.components[componentName] = new Rigidbody(this.engineAPI, componentConfig);
         }
 
-        if (componentName === "Script"){
-            this.components[componentName] = new Script(this.engineAPI, componentConfig);
-        }
-
         if (componentName === "Animator"){
             this.components[componentName] = new Animator(this.engineAPI, componentConfig);
+        }
+
+        if (componentName === "scriptingComponent"){
+            this.components[componentName] = new Script(this.engineAPI, componentConfig);
         }
     }
 
     Start(){
-        return;
+        for (const componentName in this.components) {
+            this.components[componentName].Start();
+        }
     }
 
     Update(){
-        return;
+        for (const componentName in this.components) {
+            this.components[componentName].Update();
+        }
     }
     
 }

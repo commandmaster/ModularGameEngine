@@ -1,6 +1,7 @@
 class MonoBehaviour {
-    constructor(engineAPI) {
+    constructor(engineAPI, gameObject) {
         this.engineAPI = engineAPI;
+        this.gameObject = gameObject;
     }
 
     Start(){
@@ -15,21 +16,16 @@ class MonoBehaviour {
         return this.engineAPI.gameEngine.instantiatedObjects[name];
     }
 
-    getComponentByName(name, componentName){
-        return this.engineAPI.gameEngine.instantiatedObjects[name].components[componentName];
+    getComponentByName(objectName, componentName){
+        return this.engineAPI.gameEngine.instantiatedObjects[objectName].components[componentName];
     }
 
     getComponentFromGameObject(gameObject, componentName){
         return gameObject.components[componentName];
     }
-
-    getEditorReferenceByName(type = "gameObject", referenceName){
-        if (type === "gameObject"){
-            const objectName = this.engineAPI.gameConfig.editorRefernces[referenceName];
-            return this.getObjectByName(objectName);
-        }
-    }
 }
+
+
 
 
 

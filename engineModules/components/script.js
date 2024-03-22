@@ -5,15 +5,11 @@ export default class Script extends ComponentBase {
         super(engineAPI, componentConfig);
     }
 
-    Preload(){
-        this.scriptInstance = new this.componentConfig.scriptClass(this.engineAPI);
+    Start() {
+        for (const script of this.componentConfig.scripts) {
+            this.engineAPI.engine.scriptingSystem.addScriptInstance(script.name, this.gameObject);
+        }
     }
 
-    Start(){
-        this.scriptInstance.Start();
-    }
-
-    Update(){
-        this.scriptInstance.Update();
-    }
+    
 }

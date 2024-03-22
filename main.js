@@ -18,8 +18,7 @@ import ScriptingSystem from './engineModules/systems/scriptingSystem.js';
 import AudioSystem from './engineModules/systems/audioSystem.js';
 import ParticleSystem from './engineModules/systems/particleSystem.js';
 
-import GameObject, {Camera} from './engineModules/engineObjects.js';
-import GameObjectInstance from './engineModules/engineObjects.js';
+import {GameObjectInstance, Camera}  from './engineModules/engineObjects.js';
 
 
 /**
@@ -137,7 +136,6 @@ class Engine {
     
     for (const objName in this.instantiatedObjects){
       this.instantiatedObjects[objName].Update(dt);
-      console.log(objName)
     }
 
     this.scriptingSystem.Update(dt);
