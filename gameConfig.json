@@ -30,6 +30,18 @@
     },
     "scenes":{
         "level1":{
+            "cameraConfig":{
+                "scaleMode":"resize",
+                "zoom":1,
+                "willFollow":true,
+                "followSettings":{
+                    "followSmoothness":0.1,
+                    "deadZone":{
+                        "x":50,
+                        "y":50
+                    }
+                }
+            },
             "gameObjects":{
                 "player1":{
                     "name":"player1",

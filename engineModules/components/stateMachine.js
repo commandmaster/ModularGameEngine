@@ -1,4 +1,5 @@
 import ComponentBase from './componentBase.js';
+import { RendererAPI} from '../systems/renderer.js';
 
 export default class StateMachine extends ComponentBase{
     constructor(engineAPI, componentConfig, gameObject) {
@@ -89,7 +90,9 @@ class Animation{
         const sy = this.frames[0].sy;
         const sWidth = this.frames[0].sWidth;
         const sHeight = this.frames[0].sHeight;
-        this.engineAPI.engine.renderer.renderQueue.push({type: "image", img, dx, dy, dWidth, dHeight, sx, sy, sWidth, sHeight});
+
+
+        this.engineAPI.engine.renderer.addRenderTask(new RendererAPI.AnimationRenderTask(this.engineAPI, {img, dx, dy, dWidth, dHeight, sx, sy, sWidth, sHeight}));
 
         console.log("Animation Update");
     }

@@ -81,8 +81,10 @@ export class Camera{
         this.p5 = engineAPI.gameEngine.p5;
     }
 
-    async Preload(){
-        return;
+    Preload(){
+        return new Promise(async (resolve, reject) => {
+            resolve();
+        });
     }
 
     Start(){
@@ -90,6 +92,9 @@ export class Camera{
     }
 
     Update(){
-        return;
+        // Compute Scalling
+        if (this.cameraConfig.scaleMode === "fixed"){
+            this.p5.scale(this.cameraConfig.scale);
+        }
     }
 }

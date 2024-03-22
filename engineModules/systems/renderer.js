@@ -107,6 +107,29 @@ class RendererLoaders{
     
 }
 
+class AnimationRenderTask{
+    constructor(engineAPI, {img, dx, dy, dWidth, dHeight, sx, sy, sWidth, sHeight}){
+        this.engineAPI = engineAPI;
+        this.img = img;
+        this.dx = dx;
+        this.dy = dy;
+        this.dWidth = dWidth;
+        this.dHeight = dHeight;
+        this.sx = sx;
+        this.sy = sy;
+        this.sWidth = sWidth;
+        this.sHeight = sHeight;        
+    }
+
+    render(){
+        this.engineAPI.p5.push();
+        this.engineAPI.p5.translate(100, 100)
+        this.engineAPI.p5.image(this.img, this.dx, this.dy, this.dWidth, this.dHeight, this.sx, this.sy, this.sWidth, this.sHeight);
+        this.engineAPI.p5.pop();
+    }
+}
+
+
 
 
 export default class Renderer extends ModuleBase{
@@ -121,7 +144,7 @@ export default class Renderer extends ModuleBase{
                 this.stateMachines = await this.rendererLoaders.preloadStateMachines(this.gameConfig);
                 this.animationConfigs = await this.rendererLoaders.preloadAnimConfigs(this.gameConfig);
                 this.animationsSheets = await this.rendererLoaders.preloadAnimSheets(this.gameConfig);
-                this.textures = await this.rendererLoaders.preloadTextures(this.gameConfig);
+                this.textures = await this.rendererLoaders.preloadTextures(this.gameConfig);d
 
                 this.renderQueue = []; // This will be used to store all the objects that need to be rendered this frame and will be reset every frame
 
@@ -137,22 +160,54 @@ export default class Renderer extends ModuleBase{
 
     Start(){
         this.p5.createCanvas(this.gameConfig.renderSettings.canvasSizeX, this.gameConfig.renderSettings.canvasSizeY);
+
+        this.enableCameraRendering = false;
     }
 
     Update(){
         this.p5.background(this.gameConfig.renderSettings.backgroundColor);
 
-        for (const object of this.renderQueue){
-            if (object.type === "image"){
-                this.p5.push();
-                this.p5.translate(100, 100)
-                this.p5.image(object.img, object.dx, object.dy, object.dWidth, object.dHeight, object.sx, object.sy, object.sWidth, object.sHeight);
-                this.p5.pop();
+        this.Render();
+
+    }
+
+    Render(){
+        this.p5.push();
+
+        if (this.enableCameraRendering){
+            if (this.camera !== undefined && this.camera !== null){
+                this.camera.Update();
+            }   
+        }
+
+        for (const renderable of this.renderQueue){
+            if (renderable instanceof AnimationRenderTask){
+                renderable.render();
             }
         }
+
+        this.renderQueue = [];
+        this.p5.pop();
+    }
+
+    addRenderTask(renderable){
+        this.renderQueue.push(renderable);
+    }
+
+    setCamera(cameraInstance){
+        this.camera = cameraInstance;
+        this.enableCameraRendering = true;
     }
 
     static RendererLoaders = RendererLoaders;
 }
+
+
+export class RendererAPI{
+    static AnimationRenderTask = AnimationRenderTask;
+    static Camera = Camera;
+}
+
+
 
 
