@@ -5,7 +5,4 @@ export default class StateMachine extends ComponentBase{
         super(engineAPI, componentConfig);
     }
 
-    Preload() {
-       
-    }
 }
