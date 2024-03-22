@@ -108,6 +108,7 @@ class RendererLoaders{
 }
 
 
+
 export default class Renderer extends ModuleBase{
     constructor(engineAPI, gameConfig) {
         super(engineAPI, gameConfig);
@@ -121,6 +122,8 @@ export default class Renderer extends ModuleBase{
                 this.animationConfigs = await this.rendererLoaders.preloadAnimConfigs(this.gameConfig);
                 this.animationsSheets = await this.rendererLoaders.preloadAnimSheets(this.gameConfig);
                 this.textures = await this.rendererLoaders.preloadTextures(this.gameConfig);
+
+                this.renderQueue = []; // This will be used to store all the objects that need to be rendered this frame and will be reset every frame
 
                 resolve();
             }
@@ -138,8 +141,18 @@ export default class Renderer extends ModuleBase{
 
     Update(){
         this.p5.background(this.gameConfig.renderSettings.backgroundColor);
+
+        for (const object of this.renderQueue){
+            if (object.type === "image"){
+                this.p5.push();
+                this.p5.translate(100, 100)
+                this.p5.image(object.img, object.dx, object.dy, object.dWidth, object.dHeight, object.sx, object.sy, object.sWidth, object.sHeight);
+                this.p5.pop();
+            }
+        }
     }
 
     static RendererLoaders = RendererLoaders;
 }
+
 

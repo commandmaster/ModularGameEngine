@@ -15,7 +15,17 @@ export default class StateMachine extends ComponentBase{
                 const sheet = this.engineAPI.gameEngine.renderer.animationsSheets[animation.name];
                 const animConfig = this.engineAPI.gameEngine.renderer.animationConfigs[animation.name];
 
-                this.animations[animation.name] = new Animation(animConfig.name, animConfig.type, animConfig.frameStartIndex, animConfig.frameEndIndex, animConfig.framesAcross, animConfig.framesDown, animConfig.speed, sheet);
+                this.animations[animation.name] = new Animation(this.engineAPI, {
+                    name:animConfig.name, 
+                    type: animConfig.type, 
+                    frameStartIndex: animConfig.frameStartIndex, 
+                    frameEndIndex: animConfig.frameEndIndex, 
+                    framesAcross: animConfig.framesAcross, 
+                    framesDown: animConfig.framesDown, 
+                    speed: animConfig.speed, 
+                    size: animConfig.size, 
+                    sheet
+                });
             }
 
             resolve();
@@ -37,7 +47,8 @@ export default class StateMachine extends ComponentBase{
 }
 
 class Animation{
-    constructor(name, type, frameStartIndex, frameEndIndex, framesAcross, framesDown, speed, sheet){
+    constructor(engineAPI, {name, type, frameStartIndex, frameEndIndex, framesAcross, framesDown, speed, size, sheet}){
+        this.engineAPI = engineAPI;
         this.name = name;
         this.type = type;
         this.frameStartIndex = frameStartIndex;
@@ -46,13 +57,19 @@ class Animation{
         this.framesDown = framesDown;
         this.speed = speed;
         this.sheet = sheet;
+        this.size = size;
 
         this.frames = [];
         this.cutSheet();
     }
 
     cutSheet(){
-
+        this.frameWidth = this.sheet.width / this.framesAcross;
+        this.frameHeight = this.sheet.height / this.framesDown;
+        for (let i = this.frameStartIndex; i < this.frameEndIndex; i++){
+            let j = Math.floor(i / this.framesAcross);
+            this.frames.push({"img": this.sheet, "sWidth": this.frameWidth, "sHeight": this.frameHeight, "sx": ((i) * this.frameWidth) % this.framesAcross, "sy": j * this.frameHeight, "size": this.size})
+        }
     }
 
     Start(){
@@ -61,5 +78,19 @@ class Animation{
 
     Update(){
         
+        this.engineAPI.p5.image(this.frames[0].img, 0, 0, this.frames[0].sWidth*this.frames[0].size, this.frames[0].img.height*this.frames[0].size, this.frames[0].sx, this.frames[0].sy, this.frames[0].sWidth, this.frames[0].img.height);
+
+        const img = this.frames[0].img;
+        const dx = 0;
+        const dy = 0;
+        const dWidth = this.frames[0].sWidth*this.frames[0].size;
+        const dHeight = this.frames[0].img.height*this.frames[0].size;
+        const sx = this.frames[0].sx;
+        const sy = this.frames[0].sy;
+        const sWidth = this.frames[0].sWidth;
+        const sHeight = this.frames[0].sHeight;
+        this.engineAPI.engine.renderer.renderQueue.push({type: "image", img, dx, dy, dWidth, dHeight, sx, sy, sWidth, sHeight});
+
+        console.log("Animation Update");
     }
 }
