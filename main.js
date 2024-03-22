@@ -162,6 +162,10 @@ class Engine {
 
   async loadScene(sceneName){
     const scene = this.gameConfig.scenes[sceneName];
+    const cameraConfig = this.gameConfig.scenes[sceneName].cameraConfig;
+    const cameraInstance = new Camera(this.engineAPI, cameraConfig);
+    cameraInstance.Start();
+    this.renderer.setCamera(cameraInstance);
 
     if (scene === undefined){
       console.error(`Scene ${sceneName} not found in gameConfig`);
@@ -178,8 +182,8 @@ class Engine {
       }
 
       let objToInstantiate = JSON.parse(JSON.stringify(objPrefab)); // deep clone the prefab
-      for (const componentName in obj.overrideComponents){
-        objToInstantiate.components[componentName] = obj.overrideComponents[componentName];
+      for (const componentName in obj.overideComponents){
+        objToInstantiate.components[componentName] = obj.overideComponents[componentName];
       }
 
       objToInstantiate.name = obj.name;

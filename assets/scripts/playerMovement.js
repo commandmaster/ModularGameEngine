@@ -6,8 +6,8 @@ export default class PlayerMovement extends ScriptingAPI.MonoBehaviour {
     }
 
     Start() {
-        console.log("PlayerMovement Start");
-        console.log(this.gameObject)
+        ScriptingAPI.getComponentFromGameObject(this.gameObject, "Transform").worldPosition.x = Math.floor(Math.random() * 100);
+        console.log(ScriptingAPI.getComponentFromGameObject(this.gameObject, "Transform").worldPosition.x);
     }
 
     Update() {

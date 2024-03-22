@@ -31,10 +31,15 @@
     "scenes":{
         "level1":{
             "cameraConfig":{
-                "scaleMode":"resize",
+                "startingPosition":{
+                    "x":-500,
+                    "y":0
+                },
+                "defaultViewAmount":1920,
                 "zoom":1,
                 "willFollow":true,
                 "followSettings":{
+                    "objectToFollow":"player1",
                     "followSmoothness":0.1,
                     "deadZone":{
                         "x":50,
@@ -50,8 +55,26 @@
                     "overideComponents":{
                         "Transform":{
                             "position":{
-                                "x":100,
+                                "x":300,
                                 "y":100
+                            },
+                            "rotation":0,
+                            "scale":{
+                                "x":1,
+                                "y":1
+                            }
+                        }
+                    }
+                },
+                "player2":{
+                    "name":"player2",
+                    "prefab":"player",
+                    "parent":"world",
+                    "overideComponents":{
+                        "Transform":{
+                            "position":{
+                                "x":200,
+                                "y":200
                             },
                             "rotation":0,
                             "scale":{
@@ -107,6 +130,7 @@
     "renderSettings":{
         "backgroundColor":"black",
         "canvasSizeX":800,
-        "canvasSizeY":600
+        "canvasSizeY":600,
+        "resizeCanvas":true
     }
 }

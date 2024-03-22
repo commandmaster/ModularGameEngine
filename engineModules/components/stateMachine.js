@@ -16,7 +16,7 @@ export default class StateMachine extends ComponentBase{
                 const sheet = this.engineAPI.gameEngine.renderer.animationsSheets[animation.name];
                 const animConfig = this.engineAPI.gameEngine.renderer.animationConfigs[animation.name];
 
-                this.animations[animation.name] = new Animation(this.engineAPI, {
+                this.animations[animation.name] = new Animation(this.engineAPI, this.gameObject, {
                     name:animConfig.name, 
                     type: animConfig.type, 
                     frameStartIndex: animConfig.frameStartIndex, 
@@ -48,8 +48,10 @@ export default class StateMachine extends ComponentBase{
 }
 
 class Animation{
-    constructor(engineAPI, {name, type, frameStartIndex, frameEndIndex, framesAcross, framesDown, speed, size, sheet}){
+    constructor(engineAPI, gameObject, {name, type, frameStartIndex, frameEndIndex, framesAcross, framesDown, speed, size, sheet}){
         this.engineAPI = engineAPI;
+        this.gameObject = gameObject;
+
         this.name = name;
         this.type = type;
         this.frameStartIndex = frameStartIndex;
@@ -62,14 +64,18 @@ class Animation{
 
         this.frames = [];
         this.cutSheet();
+
+        this.timeSinceLastFrameUpdate = 0;
+        this.currentFrameIndex = 0;
     }
 
     cutSheet(){
         this.frameWidth = this.sheet.width / this.framesAcross;
         this.frameHeight = this.sheet.height / this.framesDown;
+
         for (let i = this.frameStartIndex; i < this.frameEndIndex; i++){
             let j = Math.floor(i / this.framesAcross);
-            this.frames.push({"img": this.sheet, "sWidth": this.frameWidth, "sHeight": this.frameHeight, "sx": ((i) * this.frameWidth) % this.framesAcross, "sy": j * this.frameHeight, "size": this.size})
+            this.frames.push({"img": this.sheet, "sWidth": this.frameWidth, "sHeight": this.frameHeight, "sx": ((i) % this.framesAcross) * this.frameWidth, "sy": j * this.frameHeight, "size": this.size})
         }
     }
 
@@ -78,22 +84,35 @@ class Animation{
     }
 
     Update(){
+        // loop through frames
+        this.timeSinceLastFrameUpdate += this.engineAPI.p5.deltaTime;
+
+        if (this.timeSinceLastFrameUpdate >= 1000 / this.speed){
+            this.timeSinceLastFrameUpdate = 0;
+            this.currentFrameIndex++;
+
+            if (this.currentFrameIndex >= this.frames.length){
+                this.currentFrameIndex = 0;
+            }
+        }
+
         
-        this.engineAPI.p5.image(this.frames[0].img, 0, 0, this.frames[0].sWidth*this.frames[0].size, this.frames[0].img.height*this.frames[0].size, this.frames[0].sx, this.frames[0].sy, this.frames[0].sWidth, this.frames[0].img.height);
+        this.sendRenderTask(this.frameStartIndex + this.currentFrameIndex % this.frames.length);
+        
+    }
 
-        const img = this.frames[0].img;
-        const dx = 0;
-        const dy = 0;
-        const dWidth = this.frames[0].sWidth*this.frames[0].size;
-        const dHeight = this.frames[0].img.height*this.frames[0].size;
-        const sx = this.frames[0].sx;
-        const sy = this.frames[0].sy;
-        const sWidth = this.frames[0].sWidth;
-        const sHeight = this.frames[0].sHeight;
+    sendRenderTask(frameIndex = 0){
+        const img = this.frames[frameIndex].img;
+        const dx = ScriptingAPI.getComponentFromGameObject(this.gameObject, "Transform").worldPosition.x;
+        const dy = ScriptingAPI.getComponentFromGameObject(this.gameObject, "Transform").worldPosition.y;
+        const dWidth = this.frames[frameIndex].sWidth*this.frames[frameIndex].size;
+        const dHeight = this.frames[frameIndex].img.height*this.frames[frameIndex].size;
+        const sx = this.frames[frameIndex].sx;
+        const sy = this.frames[frameIndex].sy;
+        const sWidth = this.frames[frameIndex].sWidth;
+        const sHeight = this.frames[frameIndex].sHeight;
 
-
+    
         this.engineAPI.engine.renderer.addRenderTask(new RendererAPI.AnimationRenderTask(this.engineAPI, {img, dx, dy, dWidth, dHeight, sx, sy, sWidth, sHeight}));
-
-        console.log("Animation Update");
     }
 }

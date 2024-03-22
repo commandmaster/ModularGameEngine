@@ -107,9 +107,19 @@ class RendererLoaders{
     
 }
 
-class AnimationRenderTask{
-    constructor(engineAPI, {img, dx, dy, dWidth, dHeight, sx, sy, sWidth, sHeight}){
+class BaseRenderTask{
+    constructor(engineAPI){
         this.engineAPI = engineAPI;
+    }
+
+    render(){
+        return;
+    }
+}
+
+class AnimationRenderTask extends BaseRenderTask{
+    constructor(engineAPI, {img, dx, dy, dWidth, dHeight, sx, sy, sWidth, sHeight}){
+        super(engineAPI);
         this.img = img;
         this.dx = dx;
         this.dy = dy;
@@ -123,7 +133,6 @@ class AnimationRenderTask{
 
     render(){
         this.engineAPI.p5.push();
-        this.engineAPI.p5.translate(100, 100)
         this.engineAPI.p5.image(this.img, this.dx, this.dy, this.dWidth, this.dHeight, this.sx, this.sy, this.sWidth, this.sHeight);
         this.engineAPI.p5.pop();
     }
@@ -144,7 +153,7 @@ export default class Renderer extends ModuleBase{
                 this.stateMachines = await this.rendererLoaders.preloadStateMachines(this.gameConfig);
                 this.animationConfigs = await this.rendererLoaders.preloadAnimConfigs(this.gameConfig);
                 this.animationsSheets = await this.rendererLoaders.preloadAnimSheets(this.gameConfig);
-                this.textures = await this.rendererLoaders.preloadTextures(this.gameConfig);d
+                this.textures = await this.rendererLoaders.preloadTextures(this.gameConfig);
 
                 this.renderQueue = []; // This will be used to store all the objects that need to be rendered this frame and will be reset every frame
 
@@ -165,14 +174,22 @@ export default class Renderer extends ModuleBase{
     }
 
     Update(){
-        this.p5.background(this.gameConfig.renderSettings.backgroundColor);
-
         this.Render();
 
     }
 
     Render(){
         this.p5.push();
+        
+        // P5 Draw Configuation
+        this.p5.imageMode(this.p5.CENTER);
+        this.p5.rectMode(this.p5.CENTER);
+
+        // Canvas Reszing
+        if (this.p5.width !== this.p5.windowWidth || this.p5.height !== this.p5.windowHeight) this.p5.resizeCanvas(this.p5.windowWidth, this.p5.windowHeight);
+
+        // Color the background
+        this.p5.background(this.gameConfig.renderSettings.backgroundColor);
 
         if (this.enableCameraRendering){
             if (this.camera !== undefined && this.camera !== null){
@@ -205,7 +222,6 @@ export default class Renderer extends ModuleBase{
 
 export class RendererAPI{
     static AnimationRenderTask = AnimationRenderTask;
-    static Camera = Camera;
 }
 
 

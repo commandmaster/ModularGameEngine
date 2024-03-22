@@ -79,22 +79,44 @@ export class Camera{
 
         this.gameEngine = engineAPI.gameEngine;
         this.p5 = engineAPI.gameEngine.p5;
-    }
 
-    Preload(){
-        return new Promise(async (resolve, reject) => {
-            resolve();
-        });
     }
 
     Start(){
-        return;
+        if (this.cameraConfig === undefined){
+            console.error("Camera Config is missing");
+            throw new Error("Camera Config is missing");
+        }
+
+        else {
+            this.position = this.cameraConfig.startingPosition;
+        }
     }
 
     Update(){
         // Compute Scalling
-        if (this.cameraConfig.scaleMode === "fixed"){
-            this.p5.scale(this.cameraConfig.scale);
+
+        // Transformation Matrix is saved in the renderer update method
+        // That is why we don't need to push() or pop() here
+
+        if (this.cameraConfig.willFollow){
+            if (this.gameEngine.instantiatedObjects[this.cameraConfig.followSettings.objectToFollow] !== undefined){
+                this.position = this.gameEngine.instantiatedObjects[this.cameraConfig.followSettings.objectToFollow].components["Transform"].worldPosition;
+            } 
+            
         }
+
+        this.aspectRatio = this.p5.width / this.p5.height;
+        this.scaleFactor = this.p5.width / this.cameraConfig.defaultViewAmount * this.cameraConfig.zoom;
+        const screenWidth = this.p5.width
+        const screenHeight = this.p5.height;
+
+        // Center the camera around the middle of the screen at its position
+        const cameraX = screenWidth / 2 - this.position.x * this.scaleFactor;
+        const cameraY = screenHeight / 2 - this.position.y * this.scaleFactor;
+
+        this.p5.translate(cameraX, cameraY);
+        this.p5.scale(this.scaleFactor);
+
     }
 }
