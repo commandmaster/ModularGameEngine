@@ -1,7 +1,7 @@
 import Transform from "./components/transform.js";
 import Rigidbody from "./components/rigidbody.js";
 import Script from "./components/script.js";
-import Animator from "./components/animator.js";
+import StateMachine from "./components/stateMachine.js";
 
 
 
@@ -48,8 +48,8 @@ export class GameObjectInstance {
             this.components[componentName] = new Rigidbody(this.engineAPI, componentConfig);
         }
 
-        if (componentName === "Animator"){
-            this.components[componentName] = new Animator(this.engineAPI, componentConfig);
+        if (componentName === "StateMachine"){
+            this.components[componentName] = new StateMachine(this.engineAPI, componentConfig);
         }
 
         if (componentName === "scriptingComponent"){
