@@ -4,7 +4,8 @@ import { RendererAPI } from './renderer.js';
 const Engine = Matter.Engine,
         Bodies = Matter.Bodies,
         Body = Matter.Body,
-        Composite = Matter.Composite
+        Composite = Matter.Composite,
+        Render = Matter.Render
 
 
 export default class PhysicsSystem extends ModuleBase{
@@ -15,6 +16,7 @@ export default class PhysicsSystem extends ModuleBase{
     Start() {
         this.matterEngine = Engine.create({gravity: {x: 0, y: 1}});
         this.matterWorld = this.matterEngine.world;
+        
         this.debugMode = true;
 
         this.rigidBodies = [];
@@ -24,9 +26,9 @@ export default class PhysicsSystem extends ModuleBase{
         Engine.update(this.matterEngine, dt);
 
         for (const body of this.rigidBodies){
-            body.gameObject.components.Transform.localPosition.x = body.composite.bodies[0].position.x;
-            body.gameObject.components.Transform.localPosition.y = body.composite.bodies[0].position.y;
-            body.gameObject.components.Transform.rotation = body.composite.bodies[0].angle;
+            body.gameObject.components.Transform.localPosition.x = body.composite.position.x;
+            body.gameObject.components.Transform.localPosition.y = body.composite.position.y;
+            body.gameObject.components.Transform.rotation = body.composite.angle;
 
             console.log(body.gameObject.components.Transform.localPosition);
         }
@@ -58,13 +60,15 @@ export default class PhysicsSystem extends ModuleBase{
 
     debugRender(){
         for (const body of this.rigidBodies){
+            let i = 0;
             for (const collider of body.colliders){
                 if (collider.type === "rectangle" || collider.type === "box"){
-                    this.engineAPI.gameEngine.renderer.addRenderTask(new RendererAPI.BoxColliderRenderTask(this.engineAPI, {x: body.composite.bodies[0].position.x + collider.offsetX, y: body.composite.bodies[0].position.y + collider.offsetY, width: collider.width, height: collider.height, rotation: body.composite.bodies[0].angle}));
+                    this.engineAPI.gameEngine.renderer.addRenderTask(new RendererAPI.BoxColliderRenderTask(this.engineAPI, {x: body.composite.parts[i].position.x, y: body.composite.parts[i].position.y, width: collider.width, height: collider.height, rotation: body.composite.parts[i].angle}));
                 }
-                // else if (collider.type === "circle"){
-                //     this.engineAPI.gameEngine.renderer.drawCircle(collider.offsetX, collider.offsetY, collider.radius);
-                // }
+                else if (collider.type === "circle"){
+                    this.engineAPI.gameEngine.renderer.addRenderTask(new RendererAPI.CircleColliderRenderTask(this.engineAPI, {x: body.composite.parts[i].position.x, y: body.composite.parts[i].position.y, radius: collider.radius, rotation: body.composite.parts[i].angle}));
+                }
+                i++;
             }
         }
     }

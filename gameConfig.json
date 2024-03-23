@@ -55,7 +55,7 @@
                     "overideComponents":{
                         "Transform":{
                             "position":{
-                                "x":300,
+                                "x":450,
                                 "y":100
                             },
                             "rotation":90,
@@ -109,7 +109,7 @@
                     "prefab":"ground",
                     "parent":"world",
                     "overideComponents":{
-
+                        
                     }
                 }
             }
@@ -134,8 +134,8 @@
                 "Rigidbody":{
                     "matterBodyConfig":{
                         "isStatic":false,
-                        "mass":1,
-                        "friction":0.5,
+                        "mass":10,
+                        "friction":0,
                         "frictionAir":0.01
                     },
                     "colliders":[
@@ -144,6 +144,12 @@
                             "width":150,
                             "height":150,
                             "offsetX":0,
+                            "offsetY":0
+                        },
+                        {
+                            "type":"circle",
+                            "radius":100,
+                            "offsetX":-100,
                             "offsetY":0
                         }
                     ]
@@ -166,7 +172,7 @@
                 "Transform":{
                     "position":{
                         "x":0,
-                        "y":800
+                        "y":1000
                     },
                     "rotation":0,
                     "scale":{
@@ -177,7 +183,7 @@
                 "Rigidbody":{
                     "matterBodyConfig":{
                         "isStatic":true,
-                        "mass":1,
+                        "mass":1000,
                         "friction":0.5,
                         "frictionAir":0.01
                     },

@@ -155,6 +155,7 @@ class BoxColliderRenderTask extends BaseRenderTask{
 
     render(){
         this.engineAPI.p5.push();
+        this.engineAPI.p5.rectMode(this.engineAPI.p5.CENTER);
         this.engineAPI.p5.translate(this.x, this.y);
         this.engineAPI.p5.rotate(this.rotation);
         this.engineAPI.p5.noFill();
@@ -163,7 +164,27 @@ class BoxColliderRenderTask extends BaseRenderTask{
         this.engineAPI.p5.rect(0, 0, this.width, this.height);
         this.engineAPI.p5.pop();
     }
+}
 
+class CircleColliderRenderTask extends BaseRenderTask{
+    constructor(engineAPI, {x, y, radius, rotation}){
+        super(engineAPI);
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+        this.rotation = rotation;
+    }
+
+    render(){
+        this.engineAPI.p5.push();
+        this.engineAPI.p5.translate(this.x, this.y);
+        this.engineAPI.p5.rotate(this.rotation);
+        this.engineAPI.p5.noFill();
+        this.engineAPI.p5.stroke(255);
+        this.engineAPI.p5.strokeWeight(2);
+        this.engineAPI.p5.circle(0, 0, this.radius*2)
+        this.engineAPI.p5.pop();
+    }
 }
 
 
@@ -233,6 +254,10 @@ export default class Renderer extends ModuleBase{
             if (renderable instanceof BoxColliderRenderTask){
                 renderable.render();
             }
+
+            if (renderable instanceof CircleColliderRenderTask){
+                renderable.render();
+            }
         }
 
         this.renderQueue = [];
@@ -255,6 +280,7 @@ export default class Renderer extends ModuleBase{
 export class RendererAPI{
     static AnimationRenderTask = AnimationRenderTask;
     static BoxColliderRenderTask = BoxColliderRenderTask;
+    static CircleColliderRenderTask = CircleColliderRenderTask;
 }
 
 

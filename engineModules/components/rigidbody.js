@@ -8,26 +8,46 @@ export default class Rigidbody extends ComponentBase {
     Start(){
         // Set up Matter.js physics 'Composite' <- (collection of rigid bodies)
         this.colliders = this.componentConfig.colliders;
-        this.composite = Matter.Composite.create(this.componentConfig.matterBodyConfig);
+        
+        const compound = [];
 
         this.colliders.forEach(collider => {
-            addColliderBodyToComposite(this.composite, collider);
+            addColliderBodyToBody(collider, this.gameObject);
         });
 
-        function addColliderBodyToComposite(composite, collider){
+
+
+        function addColliderBodyToBody(collider, gameObject){
             let body;
+            //const xPos = gameObject.components.Transform.worldPosition.x + collider.offsetX;
+            //const yPos = gameObject.components.Transform.worldPosition.y + collider.offsetY;
+            const xPos = collider.offsetX;
+            const yPos = collider.offsetY;
             if (collider.type === "rectangle" || collider.type === "box"){
-                body = Matter.Bodies.rectangle(collider.offsetX, collider.offsetY, collider.width, collider.height);
+                body = Matter.Bodies.rectangle(
+                    xPos, 
+                    yPos, 
+                    collider.width, 
+                    collider.height, 
+                    {isStatic: false});
             }
 
             else if (collider.type === "circle"){
-                body = Matter.Bodies.circle(collider.offsetX, collider.offsetY, collider.radius);
+                body = Matter.Bodies.circle(
+                    xPos, 
+                    yPos, 
+                    collider.radius, 
+                    {isStatic: false});
             }
 
 
-            Matter.Composite.add(composite, body);
+            compound.push(body);
         }
 
+
+        this.componentConfig.matterBodyConfig.parts = compound;
+        this.composite = Matter.Body.create(this.componentConfig.matterBodyConfig);
+        Matter.Body.setPosition(this.composite, {x:this.gameObject.components.Transform.localPosition.x, y:this.gameObject.components.Transform.localPosition.y});
         this.engineAPI.engine.physicsSystem.addRigidBody(this);
     }
 
