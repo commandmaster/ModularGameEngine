@@ -103,6 +103,14 @@
                         },
                         "Rigidbody":null
                     }
+                },
+                "ground1":{
+                    "name":"ground1",
+                    "prefab":"ground",
+                    "parent":"world",
+                    "overideComponents":{
+
+                    }
                 }
             }
         }
@@ -128,8 +136,7 @@
                         "isStatic":false,
                         "mass":1,
                         "friction":0.5,
-                        "frictionAir":0.01,
-                        "bounce":0.5
+                        "frictionAir":0.01
                     },
                     "colliders":[
                         {
@@ -150,6 +157,39 @@
                 },
                 "StateMachine":{
                     "stateMachineName":"playerStateMachine"
+                }
+            }
+        },
+        "ground":{
+            "name":"ground",
+            "components":{
+                "Transform":{
+                    "position":{
+                        "x":0,
+                        "y":800
+                    },
+                    "rotation":0,
+                    "scale":{
+                        "x":1,
+                        "y":1
+                    }
+                },
+                "Rigidbody":{
+                    "matterBodyConfig":{
+                        "isStatic":true,
+                        "mass":1,
+                        "friction":0.5,
+                        "frictionAir":0.01
+                    },
+                    "colliders":[
+                        {
+                            "type":"box",
+                            "width":800,
+                            "height":50,
+                            "offsetX":0,
+                            "offsetY":0
+                        }
+                    ]
                 }
             }
         }

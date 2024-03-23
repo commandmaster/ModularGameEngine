@@ -60,7 +60,7 @@ export default class PhysicsSystem extends ModuleBase{
         for (const body of this.rigidBodies){
             for (const collider of body.colliders){
                 if (collider.type === "rectangle" || collider.type === "box"){
-                    this.engineAPI.gameEngine.renderer.addRenderTask(new RendererAPI.BoxColliderRenderTask(this.engineAPI, {x: collider.offsetX, y: collider.offsetY, width: collider.width, height: collider.height, rotation: body.composite.bodies[0].angle}));
+                    this.engineAPI.gameEngine.renderer.addRenderTask(new RendererAPI.BoxColliderRenderTask(this.engineAPI, {x: body.composite.bodies[0].position.x + collider.offsetX, y: body.composite.bodies[0].position.y + collider.offsetY, width: collider.width, height: collider.height, rotation: body.composite.bodies[0].angle}));
                 }
                 // else if (collider.type === "circle"){
                 //     this.engineAPI.gameEngine.renderer.drawCircle(collider.offsetX, collider.offsetY, collider.radius);
