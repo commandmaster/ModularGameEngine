@@ -81,7 +81,8 @@
                                 "x":1,
                                 "y":1
                             }
-                        }
+                        },
+                        "Rigidbody":null
                     }
                 },
                 "player3":{
@@ -99,7 +100,8 @@
                                 "x":1,
                                 "y":1
                             }
-                        }
+                        },
+                        "Rigidbody":null
                     }
                 }
             }
@@ -121,12 +123,19 @@
                         "y":1
                     }
                 },
-                "RigidBody":{
+                "Rigidbody":{
+                    "matterBodyConfig":{
+                        "isStatic":false,
+                        "mass":1,
+                        "friction":0.5,
+                        "frictionAir":0.01,
+                        "bounce":0.5
+                    },
                     "colliders":[
                         {
                             "type":"box",
-                            "width":50,
-                            "height":50,
+                            "width":150,
+                            "height":150,
                             "offsetX":0,
                             "offsetY":0
                         }

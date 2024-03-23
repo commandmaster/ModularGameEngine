@@ -36,7 +36,15 @@ export class GameObjectInstance {
         this.components = {};
         for (const componentName in this.gameObjectConfig.components) {
             const componentConfig = this.gameObjectConfig.components[componentName];
-            this.addComponent(componentName, componentConfig);
+            if (componentConfig === undefined || componentConfig === null){
+                continue;
+            }
+
+            else{
+                this.addComponent(componentName, componentConfig);
+            }
+
+            
         }
     }
 

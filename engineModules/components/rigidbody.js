@@ -8,7 +8,7 @@ export default class Rigidbody extends ComponentBase {
     Start(){
         // Set up Matter.js physics 'Composite' <- (collection of rigid bodies)
         this.colliders = this.componentConfig.colliders;
-        this.composite = Matter.Composite.create();
+        this.composite = Matter.Composite.create(this.componentConfig.matterBodyConfig);
 
         this.colliders.forEach(collider => {
             addColliderBodyToComposite(this.composite, collider);
@@ -16,12 +16,12 @@ export default class Rigidbody extends ComponentBase {
 
         function addColliderBodyToComposite(composite, collider){
             let body;
-            if (collider.type === "rectangle"){
-                body = Matter.Bodies.rectangle(collider.x, collider.y, collider.width, collider.height);
+            if (collider.type === "rectangle" || collider.type === "box"){
+                body = Matter.Bodies.rectangle(collider.offsetX, collider.offsetY, collider.width, collider.height);
             }
 
             else if (collider.type === "circle"){
-                body = Matter.Bodies.circle(collider.x, collider.y, collider.radius);
+                body = Matter.Bodies.circle(collider.offsetX, collider.offsetY, collider.radius);
             }
 
 

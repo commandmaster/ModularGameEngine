@@ -110,6 +110,8 @@ class RendererLoaders{
 class BaseRenderTask{
     constructor(engineAPI){
         this.engineAPI = engineAPI;
+        this.p5 = engineAPI.p5;
+        this.gameEngine = engineAPI.gameEngine;
     }
 
     render(){
@@ -141,6 +143,28 @@ class AnimationRenderTask extends BaseRenderTask{
     }
 }
 
+class BoxColliderRenderTask extends BaseRenderTask{
+    constructor(engineAPI, {x, y, width, height, rotation}){
+        super(engineAPI);
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.rotation = rotation;
+    }
+
+    render(){
+        this.engineAPI.p5.push();
+        this.engineAPI.p5.translate(this.x, this.y);
+        this.engineAPI.p5.rotate(this.rotation);
+        this.engineAPI.p5.noFill();
+        this.engineAPI.p5.stroke(255);
+        this.engineAPI.p5.strokeWeight(2);
+        this.engineAPI.p5.rect(0, 0, this.width, this.height);
+        this.engineAPI.p5.pop();
+    }
+
+}
 
 
 
@@ -205,6 +229,10 @@ export default class Renderer extends ModuleBase{
             if (renderable instanceof AnimationRenderTask){
                 renderable.render();
             }
+
+            if (renderable instanceof BoxColliderRenderTask){
+                renderable.render();
+            }
         }
 
         this.renderQueue = [];
@@ -226,6 +254,7 @@ export default class Renderer extends ModuleBase{
 
 export class RendererAPI{
     static AnimationRenderTask = AnimationRenderTask;
+    static BoxColliderRenderTask = BoxColliderRenderTask;
 }
 
 
