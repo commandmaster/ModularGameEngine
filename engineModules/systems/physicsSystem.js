@@ -28,7 +28,7 @@ export default class PhysicsSystem extends ModuleBase{
         for (const body of this.rigidBodies){
             body.gameObject.components.Transform.localPosition.x = body.composite.position.x;
             body.gameObject.components.Transform.localPosition.y = body.composite.position.y;
-            body.gameObject.components.Transform.rotation = body.composite.angle;
+            body.gameObject.components.Transform.localRotation = body.composite.angle * 180 / Math.PI;
 
             console.log(body.gameObject.components.Transform.localPosition);
         }
@@ -63,10 +63,11 @@ export default class PhysicsSystem extends ModuleBase{
             let i = 0;
             for (const collider of body.colliders){
                 if (collider.type === "rectangle" || collider.type === "box"){
-                    this.engineAPI.gameEngine.renderer.addRenderTask(new RendererAPI.BoxColliderRenderTask(this.engineAPI, {x: body.composite.parts[i].position.x, y: body.composite.parts[i].position.y, width: collider.width, height: collider.height, rotation: body.composite.parts[i].angle}));
+                    console.log(body.composite.parts[i].position);
+                    this.engineAPI.gameEngine.renderer.addRenderTask(new RendererAPI.BoxColliderRenderTask(this.engineAPI, {x: body.composite.parts[i].position.x, y: body.composite.parts[i].position.y, width: collider.width, height: collider.height, rotation: body.composite.parts[i].angle * 180 / Math.PI}));
                 }
                 else if (collider.type === "circle"){
-                    this.engineAPI.gameEngine.renderer.addRenderTask(new RendererAPI.CircleColliderRenderTask(this.engineAPI, {x: body.composite.parts[i].position.x, y: body.composite.parts[i].position.y, radius: collider.radius, rotation: body.composite.parts[i].angle}));
+                    this.engineAPI.gameEngine.renderer.addRenderTask(new RendererAPI.CircleColliderRenderTask(this.engineAPI, {x: body.composite.parts[i].position.x, y: body.composite.parts[i].position.y, radius: collider.radius, rotation: body.composite.parts[i].angle * 180 / Math.PI}));
                 }
                 i++;
             }

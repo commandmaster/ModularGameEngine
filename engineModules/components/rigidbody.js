@@ -19,8 +19,7 @@ export default class Rigidbody extends ComponentBase {
 
         function addColliderBodyToBody(collider, gameObject){
             let body;
-            //const xPos = gameObject.components.Transform.worldPosition.x + collider.offsetX;
-            //const yPos = gameObject.components.Transform.worldPosition.y + collider.offsetY;
+            
             const xPos = collider.offsetX;
             const yPos = collider.offsetY;
             if (collider.type === "rectangle" || collider.type === "box"){
@@ -44,10 +43,11 @@ export default class Rigidbody extends ComponentBase {
             compound.push(body);
         }
 
-
+        this.bodies = compound;
         this.componentConfig.matterBodyConfig.parts = compound;
         this.composite = Matter.Body.create(this.componentConfig.matterBodyConfig);
         Matter.Body.setPosition(this.composite, {x:this.gameObject.components.Transform.localPosition.x, y:this.gameObject.components.Transform.localPosition.y});
+        Matter.Body.setAngle(this.composite, this.gameObject.components.Transform.localRotation * Math.PI / 180);
         this.engineAPI.engine.physicsSystem.addRigidBody(this);
     }
 

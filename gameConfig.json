@@ -55,7 +55,7 @@
                     "overideComponents":{
                         "Transform":{
                             "position":{
-                                "x":450,
+                                "x":300,
                                 "y":100
                             },
                             "rotation":90,
@@ -141,15 +141,15 @@
                     "colliders":[
                         {
                             "type":"box",
-                            "width":150,
-                            "height":150,
+                            "width":50,
+                            "height":50,
                             "offsetX":0,
-                            "offsetY":0
+                            "offsetY":100
                         },
                         {
                             "type":"circle",
                             "radius":100,
-                            "offsetX":-100,
+                            "offsetX":0,
                             "offsetY":0
                         }
                     ]
