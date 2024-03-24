@@ -187,6 +187,29 @@ class CircleColliderRenderTask extends BaseRenderTask{
     }
 }
 
+class ParticleRenderTask extends BaseRenderTask{
+    constructor(engineAPI, {texture, position, rotation, transparency, color}){
+        super(engineAPI);
+        this.x = position.x;
+        this.y = position.y;
+        this.texture = texture;
+        this.rotation = rotation;
+        this.transparency = transparency;
+        this.color = color;
+    }
+
+    render(){
+        this.p5.push();
+        this.p5.translate(this.x, this.y);
+        this.p5.rotate(this.rotation);
+        this.p5.noFill();
+        this.p5.noStroke();
+        this.p5.tint(this.color.r, this.color.g, this.color.b, this.transparency);
+        this.p5.image(this.texture, 0, 0);
+        this.p5.pop();
+    }
+}
+
 class CustomRenderTask extends BaseRenderTask{
     constructor(engineAPI, renderCallback){
         super(engineAPI);
@@ -267,21 +290,16 @@ export default class Renderer extends ModuleBase{
         for (const renderable of this.renderQueue){
             // could be a bunch of or statements but this is cleaner
 
-            if (renderable instanceof AnimationRenderTask){
-                renderable.render();
-            }
+            if (renderable instanceof AnimationRenderTask) renderable.render();
 
-            if (renderable instanceof BoxColliderRenderTask){
-                renderable.render();
-            }
+            if (renderable instanceof BoxColliderRenderTask) renderable.render();
+            
+            if (renderable instanceof CircleColliderRenderTask) renderable.render();
 
-            if (renderable instanceof CircleColliderRenderTask){
-                renderable.render();
-            }
+            if (renderable instanceof ParticleRenderTask) renderable.render();
+            
+            if (renderable instanceof CustomRenderTask) renderable.render();
 
-            if (renderable instanceof CustomRenderTask){
-                renderable.render();
-            }
         }
 
         this.renderQueue = [];

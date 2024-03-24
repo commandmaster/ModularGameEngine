@@ -2,6 +2,8 @@ class MonoBehaviour {
     constructor(engineAPI, gameObject) {
         this.engineAPI = engineAPI;
         this.gameObject = gameObject;
+        this.engine = engineAPI.gameEngine;
+        this.p5 = engineAPI.gameEngine.p5;
     }
 
     Start(){
@@ -37,6 +39,12 @@ function getComponentFromGameObject(gameObject, componentName){
     return gameObject.components[componentName];
 }
 
+function lerpColor(color1, color2, amount){
+    const r = Math.floor(color1.r + (color2.r - color1.r) * amount);
+    const g = Math.floor(color1.g + (color2.g - color1.g) * amount);
+    const b = Math.floor(color1.b + (color2.b - color1.b) * amount);
+    return {r, g, b};
+}
 
 
 
@@ -69,9 +77,15 @@ function waitForCondition(condition, timeBetweenChecks = 50){
 
 
 class ScriptingAPI{
+    //#region Classes
     static MonoBehaviour = MonoBehaviour;
+    //#endregion
+
+    //#region Functions
     static waitForCondition = waitForCondition;
     static getObjectByName = getObjectByName;
     static getComponentByName = getComponentByName;
     static getComponentFromGameObject = getComponentFromGameObject;
+    static lerpColor = lerpColor;
+    //#endregion
 }
