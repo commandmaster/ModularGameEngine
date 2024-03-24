@@ -1,72 +1,4 @@
-import ModuleBase from "./moduleBase.js";
-import { RendererAPI } from "./renderer.js";
-
-export default class ParticleSystem extends ModuleBase{ 
-    //#region Private Fields
-    #systemConfigs = {};
-    //#endregion
-
-    //#region Public Fields
-    systemInstances = {};
-    //#endregion
-
-    constructor(engineAPI, gameConfig) {
-        super(engineAPI, gameConfig);
-    }
-
-    //#region Enigine Callbacks
-    Preload(){
-        return new Promise(async (resolve, reject) => {
-            this.#systemConfigs = await this.#loadSystems(this.gameConfig);
-            resolve();
-        });
-    }
-
-    Start(){
-        
-    }
-
-    Update(){
-        for (const systemName in this.systemInstances){
-            this.systemInstances[systemName].Update();
-        }
-    }
-    //#endregion
-
-
-
-    //#region Public Methods
-    SpawnSystem(systemName){
-        this.systemInstances[systemName] = new SystemOfEmittersInstance(this.engineAPI, this.#systemConfigs[systemName]);
-        this.systemInstances[systemName].Start();
-    }
-    //#endregion
-
-
-
-    //#region Private Methods
-    async #loadSystems(gameConfig){
-        return new Promise(async (resolve, reject) => {
-            const tempConfigs = {};
-            for (const systemName in gameConfig.assets.particleSystems){
-                const systemConfig = await this.#loadSystem(gameConfig, systemName);
-                tempConfigs[systemName] = systemConfig;
-            }
-            resolve(tempConfigs);
-        });
-    }
-
-    #loadSystem(gameConfig, systemName){
-        return new Promise((resolve, reject) => {
-            const systemConfigPath = gameConfig.assets.particleSystems[systemName].pathToParticleSystemConfig;
-            this.p5.loadJSON(systemConfigPath, (data) => {
-                resolve(data);
-            });
-        });
-    }
-    //#endregion
-}
-
+import ComponentBase from "./componentBase";
 
 
 
@@ -164,15 +96,13 @@ class ParticleEmitterInstance{
     #burstInterval;   
     #continuousRate;
     #maxParticleCount;
+    #spawnRadius;
 
     // Over Lifetime Behaviors
     #colorOverTimeData;
     #sizeOverTimeData;
     #transparencyOverTimeData;
-    #rotationOverTimeData;
-    #velocityOverTimeData;
-    #accelerationOverTimeData;
-    #angularVelocityOverTimeData;
+
 
 
     //#endregion
@@ -195,7 +125,6 @@ class ParticleEmitterInstance{
     //#region Particle Emitter Callbacks
     Start(){
         this.Play();
-        
     }
 
     Update(){
@@ -242,6 +171,7 @@ class ParticleEmitterInstance{
         this.#burstInterval = this.#emitterConfig.spawnBehavior.burstInterval;
         this.#burstCount = this.#emitterConfig.spawnBehavior.burstCount;
 
+        this.#spawnRadius = this.#emitterConfig.spawnBehavior.spawnRadius;
 
         this.#continuousRate = this.#emitterConfig.spawnBehavior.continuousRate; // Particles per second
         this.#maxParticleCount = this.#emitterConfig.spawnBehavior.maxParticleCount;
@@ -320,7 +250,10 @@ class ParticleEmitterInstance{
             return {x: vector.x * scalar, y: vector.y * scalar};
         }
 
-        const randomPos = generateVectorInRange({x:this.#position.x1, y:this.#position.y1}, {x:this.#position.x2, y:this.#position.y2});
+        const randomPos = {x: this.#position.x, y: this.#position.y}
+        randomPos.x += this.p5.random(-this.#spawnRadius, this.#spawnRadius);
+        randomPos.y += this.p5.random(-this.#spawnRadius, this.#spawnRadius);
+
         const randomVel = multiplyVector(generateVectorInRange({x:this.#velocity.x1, y:this.#velocity.y1}, {x:this.#velocity.x2, y:this.#velocity.y2}), this.#velocity.scalar);
         const randomAcc = multiplyVector(generateVectorInRange({x:this.#acceleration.x1, y:this.#acceleration.y1}, {x:this.#acceleration.x2, y:this.#acceleration.y2}), this.#acceleration.scalar);
         const randomRot = this.p5.random(this.#rotation.z1, this.#rotation.z2);
@@ -343,16 +276,20 @@ class ParticleEmitterInstance{
     //#endregion
 }
 
-class SystemOfEmittersInstance{
+export default class SystemOfEmitters{
     //#region Private Fields
     #emitters = {};
     #enabled = false;
     #systemConfig = {};
     //#endregion
 
-    constructor(engineAPI, systemConfig){
+
+
+    constructor(engineAPI, systemConfig, gameObject){
         this.engineAPI = engineAPI;
+        this.gameObject = gameObject;
         this.#systemConfig = systemConfig;
+        this.spawningSpace = systemConfig.spawningSpace;
     }
 
     //#region Particle System Callbacks
