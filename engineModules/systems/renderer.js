@@ -135,11 +135,11 @@ class AnimationRenderTask extends BaseRenderTask{
     }
 
     render(){
-        this.engineAPI.p5.push();
-        this.engineAPI.p5.translate(this.dx, this.dy);
-        this.engineAPI.p5.rotate(this.rotation);
-        this.engineAPI.p5.image(this.img, 0, 0, this.dWidth, this.dHeight, this.sx, this.sy, this.sWidth, this.sHeight);
-        this.engineAPI.p5.pop();
+        this.p5.push();
+        this.p5.translate(this.dx, this.dy);
+        this.p5.rotate(this.rotation);
+        this.p5.image(this.img, 0, 0, this.dWidth, this.dHeight, this.sx, this.sy, this.sWidth, this.sHeight);
+        this.p5.pop();
     }
 }
 
@@ -154,15 +154,15 @@ class BoxColliderRenderTask extends BaseRenderTask{
     }
 
     render(){
-        this.engineAPI.p5.push();
-        this.engineAPI.p5.rectMode(this.engineAPI.p5.CENTER);
-        this.engineAPI.p5.translate(this.x, this.y);
-        this.engineAPI.p5.rotate(this.rotation);
-        this.engineAPI.p5.noFill();
-        this.engineAPI.p5.stroke(255);
-        this.engineAPI.p5.strokeWeight(2);
-        this.engineAPI.p5.rect(0, 0, this.width, this.height);
-        this.engineAPI.p5.pop();
+        this.p5.push();
+        this.p5.rectMode(this.engineAPI.p5.CENTER);
+        this.p5.translate(this.x, this.y);
+        this.p5.rotate(this.rotation);
+        this.p5.noFill();
+        this.p5.stroke(255);
+        this.p5.strokeWeight(2);
+        this.p5.rect(0, 0, this.width, this.height);
+        this.p5.pop();
     }
 }
 
@@ -176,14 +176,32 @@ class CircleColliderRenderTask extends BaseRenderTask{
     }
 
     render(){
-        this.engineAPI.p5.push();
-        this.engineAPI.p5.translate(this.x, this.y);
-        this.engineAPI.p5.rotate(this.rotation);
-        this.engineAPI.p5.noFill();
-        this.engineAPI.p5.stroke(255);
-        this.engineAPI.p5.strokeWeight(2);
-        this.engineAPI.p5.circle(0, 0, this.radius*2)
-        this.engineAPI.p5.pop();
+        this.p5.push();
+        this.p5.translate(this.x, this.y);
+        this.p5.rotate(this.rotation);
+        this.p5.noFill();
+        this.p5.stroke(255);
+        this.p5.strokeWeight(2);
+        this.p5.circle(0, 0, this.radius*2)
+        this.p5.pop();
+    }
+}
+
+class CustomRenderTask extends BaseRenderTask{
+    constructor(engineAPI, renderCallback){
+        super(engineAPI);
+        this.renderCallback = renderCallback;
+    }
+
+    render(){
+        this.p5.push();
+        
+        this.p5.angleMode(this.p5.DEGREES);
+        this.p5.rectMode(this.p5.CENTER);
+        this.p5.imageMode(this.p5.CENTER);
+
+        this.renderCallback(this.p5);
+        this.p5.pop();
     }
 }
 
@@ -222,11 +240,11 @@ export default class Renderer extends ModuleBase{
     }
 
     Update(){
-        this.Render();
+        this.#Render();
 
     }
 
-    Render(){
+    #Render(){
         this.p5.push();
         
         // P5 Draw Configuation
@@ -247,6 +265,8 @@ export default class Renderer extends ModuleBase{
         }
 
         for (const renderable of this.renderQueue){
+            // could be a bunch of or statements but this is cleaner
+
             if (renderable instanceof AnimationRenderTask){
                 renderable.render();
             }
@@ -256,6 +276,10 @@ export default class Renderer extends ModuleBase{
             }
 
             if (renderable instanceof CircleColliderRenderTask){
+                renderable.render();
+            }
+
+            if (renderable instanceof CustomRenderTask){
                 renderable.render();
             }
         }
@@ -281,6 +305,7 @@ export class RendererAPI{
     static AnimationRenderTask = AnimationRenderTask;
     static BoxColliderRenderTask = BoxColliderRenderTask;
     static CircleColliderRenderTask = CircleColliderRenderTask;
+    static CustomRenderTask = CustomRenderTask;
 }
 
 

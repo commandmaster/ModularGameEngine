@@ -9,6 +9,11 @@ const Engine = Matter.Engine,
 
 
 export default class PhysicsSystem extends ModuleBase{
+    //#region Private Fields
+    #lastPhysicsUpdate = performance.now();
+    #timeStepLimit = 50; //Unit: ms, Prevents spiral of death and a bug when alt tabbing causes dt to be very large and the physics to break
+    //#endregion
+
     constructor(engineAPI, gameConfig) {
         super(engineAPI, gameConfig);
     }
@@ -23,18 +28,13 @@ export default class PhysicsSystem extends ModuleBase{
     }
 
     Update(dt) {
-        Engine.update(this.matterEngine, dt);
+        const timeSinceLastUpdate = Math.min(performance.now() - this.#lastPhysicsUpdate, this.#timeStepLimit); // Prevents spiral of death and a bug when alt tabbing causes dt to be very large and the physics to break
+        Engine.update(this.matterEngine, timeSinceLastUpdate);
+        this.#lastPhysicsUpdate = performance.now();
+        
 
         for (const body of this.rigidBodies){
-            body.gameObject.components.Transform.localPosition.x = body.composite.position.x;
-            body.gameObject.components.Transform.localPosition.y = body.composite.position.y;
-            body.gameObject.components.Transform.localRotation = body.composite.angle * 180 / Math.PI;
-
-            console.log(body.gameObject.components.Transform.localPosition);
-        }
-
-        if (this.debugMode){
-            this.debugRender();
+            body.Update(this.debugMode);
         }
     }
 
@@ -58,19 +58,5 @@ export default class PhysicsSystem extends ModuleBase{
         this.debug(false);
     }
 
-    debugRender(){
-        for (const body of this.rigidBodies){
-            let i = 0;
-            for (const collider of body.colliders){
-                if (collider.type === "rectangle" || collider.type === "box"){
-                    console.log(body.composite.parts[i].position);
-                    this.engineAPI.gameEngine.renderer.addRenderTask(new RendererAPI.BoxColliderRenderTask(this.engineAPI, {x: body.composite.parts[i].position.x, y: body.composite.parts[i].position.y, width: collider.width, height: collider.height, rotation: body.composite.parts[i].angle * 180 / Math.PI}));
-                }
-                else if (collider.type === "circle"){
-                    this.engineAPI.gameEngine.renderer.addRenderTask(new RendererAPI.CircleColliderRenderTask(this.engineAPI, {x: body.composite.parts[i].position.x, y: body.composite.parts[i].position.y, radius: collider.radius, rotation: body.composite.parts[i].angle * 180 / Math.PI}));
-                }
-                i++;
-            }
-        }
-    }
+    
 }

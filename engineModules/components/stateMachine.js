@@ -63,13 +63,13 @@ class Animation{
         this.size = size;
 
         this.frames = [];
-        this.cutSheet();
+        this.#cutSheet();
 
         this.timeSinceLastFrameUpdate = 0;
         this.currentFrameIndex = 0;
     }
 
-    cutSheet(){
+    #cutSheet(){
         this.frameWidth = this.sheet.width / this.framesAcross;
         this.frameHeight = this.sheet.height / this.framesDown;
 
@@ -97,11 +97,11 @@ class Animation{
         }
 
         
-        this.sendRenderTask(this.frameStartIndex + this.currentFrameIndex % this.frames.length);
+        this.#sendRenderTask(this.frameStartIndex + this.currentFrameIndex % this.frames.length);
         
     }
 
-    sendRenderTask(frameIndex = 0){
+    #sendRenderTask(frameIndex = 0){
         const img = this.frames[frameIndex].img;
         const dx = ScriptingAPI.getComponentFromGameObject(this.gameObject, "Transform").worldPosition.x;
         const dy = ScriptingAPI.getComponentFromGameObject(this.gameObject, "Transform").worldPosition.y;

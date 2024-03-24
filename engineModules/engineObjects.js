@@ -17,7 +17,7 @@ export class GameObjectInstance {
 
     async Preload(){
         return new Promise(async (resolve, reject) => { 
-            this.initializeComponents();
+            this.#initializeComponents();
             const preloadPromises = [];
             for (const componentName in this.components) {
                 preloadPromises.push(this.components[componentName].Preload());
@@ -32,7 +32,7 @@ export class GameObjectInstance {
     }
     
 
-    initializeComponents(){
+    #initializeComponents(){
         this.components = {};
         for (const componentName in this.gameObjectConfig.components) {
             const componentConfig = this.gameObjectConfig.components[componentName];
@@ -41,14 +41,14 @@ export class GameObjectInstance {
             }
 
             else{
-                this.addComponent(componentName, componentConfig);
+                this.#addComponent(componentName, componentConfig);
             }
 
             
         }
     }
 
-    addComponent(componentName, componentConfig){
+    #addComponent(componentName, componentConfig){
         if (componentName === "Transform"){
             this.components[componentName] = new Transform(this.engineAPI, componentConfig, this);
         }

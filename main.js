@@ -4,13 +4,9 @@
 //
 // Extra for Experts:
 
-// Library Imports
 
 
-
-
-
-// Engine Imports
+//#region Imports
 import Renderer from './engineModules/systems/renderer.js';
 import InputSystem from './engineModules/systems/inputSystem.js';
 import PhysicsSystem from './engineModules/systems/physicsSystem.js';
@@ -19,25 +15,11 @@ import AudioSystem from './engineModules/systems/audioSystem.js';
 import ParticleSystem from './engineModules/systems/particleSystem.js';
 
 import {GameObjectInstance, Camera}  from './engineModules/engineObjects.js';
+//#endregion
 
 
-/**
- * Waits for a condition to be met.
- * @param {Function} condition - The condition to wait for.
- * @returns {Promise} A promise that resolves when the condition is met.
- */
-function waitForCondition(condition) {
-  return new Promise((resolve) => {
-    const intervalId = setInterval(() => {
-      if (condition()) {
-        clearInterval(intervalId);
-        resolve();
-      }
-    }, 50);
-  });
-}
 
-
+//#region P5js Game Loop and Instance creation using the Engine
 let preloadDone = false;
 let firstUpdate = false
 let game = function(p5){
@@ -49,9 +31,9 @@ let game = function(p5){
   };
 
   p5.setup = function(){
-    waitForCondition(() => {return preloadDone}).then(() => {
+    ScriptingAPI.waitForCondition(() => {return preloadDone}).then(() => {
       gameEngine.Start();
-    });
+    }, 50);
     
   }
 
@@ -73,9 +55,13 @@ let game = function(p5){
       }
     }
   };
-  
 }
 
+//#endregion
+
+
+
+//#region Engine Classes
 class EngineAPI {
   constructor(engine){
     this.engine = engine;
@@ -90,13 +76,14 @@ class Engine {
     this.p5 = p5;
   }
 
+  //#region P5js Callbacks (Preload, Setup, Draw)
   async Preload(){
-    const gameConfig = await this.loadGameConfigAsync();
+    const gameConfig = await this.#loadGameConfigAsync();
 
     // Setup Objects
     this.prefabs = {};
     this.instantiatedObjects = {};
-    this.loadPrefabs(gameConfig); // gameConfig is loaded in loadGameConfigAsync
+    this.#loadPrefabs(gameConfig); // gameConfig is loaded in loadGameConfigAsync
 
     this.engineAPI = new EngineAPI(this);
 
@@ -114,7 +101,7 @@ class Engine {
       this.particleSystem.Preload(),
       this.scriptingSystem.Preload(),
       this.renderer.Preload(),
-      this.loadGameConfigAsync()
+      this.#loadGameConfigAsync()
     ]);
   }
 
@@ -127,8 +114,10 @@ class Engine {
     this.renderer.Start();
     this.audioSystem.Start();
 
-    this.loadScene("level1");
+    this.#loadScene("level1");
   }
+
+  
 
   Update(dt){
     this.inputSystem.Update(dt);
@@ -144,7 +133,11 @@ class Engine {
     this.renderer.Update(dt);
   }
 
-  loadGameConfigAsync(){
+  //#endregion
+
+
+  //#region Private Methods
+  #loadGameConfigAsync(){
     return new Promise((resolve, reject) => {
       this.p5.loadJSON("./gameConfig.json", (data) => {
         this.gameConfig = data;
@@ -153,14 +146,14 @@ class Engine {
     });
   }
 
-  loadPrefabs(gameConfig){
+  #loadPrefabs(gameConfig){
     for (const prefabName in gameConfig.prefabs){
       const prefab = gameConfig.prefabs[prefabName];
       this.prefabs[prefabName] = prefab;
     }
   }
 
-  async loadScene(sceneName){
+  async #loadScene(sceneName){
     const scene = this.gameConfig.scenes[sceneName];
     const cameraConfig = this.gameConfig.scenes[sceneName].cameraConfig;
     const cameraInstance = new Camera(this.engineAPI, cameraConfig);
@@ -189,7 +182,7 @@ class Engine {
       objToInstantiate.name = obj.name;
       objToInstantiate.parent = obj.parent;
 
-      this.instantiatedObjects[obj.name] = await this.instantiateSceneObject(objToInstantiate);
+      this.instantiatedObjects[obj.name] = await this.#instantiateSceneObject(objToInstantiate);
     }
 
     // Start all objects
@@ -199,7 +192,7 @@ class Engine {
   }
 
 
-  instantiateSceneObject(obj){
+  #instantiateSceneObject(obj){
     return new Promise((resolve, reject) => {
       const gameObjectInstance = new GameObjectInstance(this.engineAPI, obj);
     
@@ -208,11 +201,15 @@ class Engine {
       });
     });
   }
-
-
+  //#endregion
 }
 
+//#endregion
 
+
+
+//#region Create P5js Game Instance
 window.addEventListener("load", async () => {
   new p5(game);
 });
+//#endregion

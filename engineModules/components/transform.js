@@ -16,14 +16,14 @@ export default class Transform extends ComponentBase {
 
     Start() {
         if (this.gameObject.parent !== "world" && this.gameObject.parent !== undefined && this.gameObject.parent !== null) this.parentTransform = ScriptingAPI.getComponentByName(this.engineAPI, this.gameObject.parent, "Transform");
-        this.setWorldTransform();
+        this.#setWorldTransform();
     }
 
     Update() {
-        this.setWorldTransform();
+        this.#setWorldTransform();
     }
 
-    setWorldTransform(){
+    #setWorldTransform(){
         if (this.gameObject.parent === "world") {
             this.worldPosition = this.localPosition;
             this.worldRotation = this.localRotation;
