@@ -68,9 +68,23 @@ export default class ParticleSystem extends ModuleBase{
 
 
 class ParticleInstance{
-    constructor(engineAPI, particleConfig){
+    //#region Public Fields
+    texture;
+    color;
+    position;
+    velocity;
+    acceleration;
+    rotation;
+    angularVelocity;
+    lifeSpan;
+    transparency;
+    //#endregion
+
+    constructor(engineAPI, particleObj){
         this.engineAPI = engineAPI;
         this.particleConfig = particleConfig;
+
+        this.#initialize(particleObj);
     }
 
     //#region Particle Callbacks
@@ -79,27 +93,50 @@ class ParticleInstance{
     }
 
     Update(){
-
+        
     }
     //#endregion
 
     //#region Private Methods
-    Initialize(){
+    #initialize(particleObj){
+        this.texture = this.engineAPI.renderer.textures[particleObj.textureName];
+        this.color = particleObj.color;
+        this.position = particleObj.position;
+        this.velocity = particleObj.velocity;
+        this.acceleration = particleObj.acceleration;
+        this.rotation = particleObj.rotation;
+        this.angularVelocity = particleObj.angularVelocity;
+        this.lifeSpan = particleObj.lifeSpan;
+        this.transparency = particleObj.transparency;
+    }
 
+    #render(){
+        
     }
     //#endregion
+
+    //#region Public Methods
+    forceDestroy(){
+        this.lifeSpan = 0;
+    }
 }
 
 class ParticleEmitterInstance{
     //#region Private Fields
     #particles = [];
     #enabled = false;
+    #emitterConfig = {};
+    #systemInstance;
+    //#endregion
+
+    //#region Public Fields
+    
     //#endregion
 
     constructor(engineAPI, emitterConfig, systemInstance){
         this.engineAPI = engineAPI;
-        this.emitterConfig = emitterConfig;
-        this.systemInstance = systemInstance;
+        this.#emitterConfig = emitterConfig;
+        this.#systemInstance = systemInstance;
     }
 
     //#region Particle Emitter Callbacks
@@ -109,22 +146,71 @@ class ParticleEmitterInstance{
 
     Update(){
         if (!this.#enabled) return;
-        
+        this.#updateParticles();
     }
     //#endregion
 
     //#region Private Methods
-    #Initialize(){
+    #initializeParticles(){
         this.#particles = [];
-        for (let i = 0; i < this.emitterConfig.maxParticles; i++){
-            this.#particles.push(new ParticleInstance(this.engineAPI, this.emitterConfig));
+    }
+
+    #updateParticles(){
+        //#region Update Logic
+        for (const particle of this.#particles){
+            
         }
+        //#endregion
+
+
+
+        //#region Spawn Logic
+
+        // Start Atributes
+        const lifeSpan = this.#emitterConfig.startAttributes.lifeSpan;
+        const position = this.#emitterConfig.startAttributes.position;
+        const velocity = this.#emitterConfig.startAttributes.velocity;
+        const acceleration = this.#emitterConfig.startAttributes.acceleration;
+        const rotation = this.#emitterConfig.startAttributes.rotation;
+        const angularVelocity = this.#emitterConfig.startAttributes.angularVelocity;
+
+        // Render Atributes
+        const textureName = this.#emitterConfig.renderAttributes.textureName;
+        const color = this.#emitterConfig.renderAttributes.color;
+        const transparency = this.#emitterConfig.renderAttributes.transparency;
+
+        // Spawn Behaviors
+        const spawnDelay = this.#emitterConfig.spawnBehavior.spawnDelay;
+        const spawnType = this.#emitterConfig.spawnBehavior.spawnType;
+        const spawnRate = this.#emitterConfig.spawnBehavior.spawnRate;
+        const maxCount = this.#emitterConfig.spawnBehavior.maxCount;
+    
+
+        // Spawn Particles
+        if (spawnType === "burst"){
+            for (let i = 0; i < spawnRate; i++){
+                const particleObj = {
+                    lifeSpan: lifeSpan,
+                    position: position,
+                    velocity: velocity,
+                    acceleration: acceleration,
+                    rotation: rotation,
+                    angularVelocity: angularVelocity,
+                    textureName: textureName,
+                    color: color,
+                    transparency: transparency
+                }
+                this.#particles.push(new ParticleInstance(this.engineAPI, particleObj));
+            }
+        }
+
+        //#endregion
     }
     //#endregion
 
     //#region Public Methods
     Play(){
-        this.#Initialize();
+        this.#initializeParticles();
         this.#enabled = true;
     }
 
