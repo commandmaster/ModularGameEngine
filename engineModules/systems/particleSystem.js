@@ -27,7 +27,9 @@ export default class ParticleSystem extends ModuleBase{
     }
 
     Update(){
-        
+        for (const systemName in this.systemInstances){
+            this.systemInstances[systemName].Update();
+        }
     }
     //#endregion
 
@@ -79,11 +81,12 @@ class ParticleInstance{
     angularVelocity;
     transparency;
     lifeRemaining;
+    size;
     //#endregion
 
     constructor(engineAPI, particleObj){
         this.engineAPI = engineAPI;
-        this.particleConfig = particleConfig;
+        this.particleObj = particleObj;
 
         this.#initialize(particleObj);
     }
@@ -95,13 +98,13 @@ class ParticleInstance{
 
     Update(dt){
         // integrate velocity, acceleration, and position using semi implicit euler method (https://gafferongames.com/post/integration_basics/)
-        this.velocity.x += this.acceleration.x * dt;
-        this.velocity.y += this.acceleration.y * dt;
+        this.velocity.x += this.acceleration.x * dt / 1000;
+        this.velocity.y += this.acceleration.y * dt / 1000;
 
-        this.position.x += this.velocity.x * dt; 
-        this.position.y += this.velocity.y * dt;
+        this.position.x += this.velocity.x * dt / 1000; 
+        this.position.y += this.velocity.y * dt / 1000;
 
-        this.rotation += this.angularVelocity * dt;
+        this.rotation += this.angularVelocity * dt / 1000;
 
         this.#render();
     }
@@ -109,7 +112,7 @@ class ParticleInstance{
 
     //#region Private Methods
     #initialize(particleObj){
-        this.texture = this.engineAPI.renderer.textures[particleObj.textureName];
+        this.texture = this.engineAPI.engine.renderer.textures[particleObj.textureName];
         this.color = particleObj.color;
         this.position = particleObj.position;
         this.velocity = particleObj.velocity;
@@ -118,10 +121,11 @@ class ParticleInstance{
         this.angularVelocity = particleObj.angularVelocity;
         this.transparency = particleObj.transparency;
         this.lifeRemaining = particleObj.lifeSpan;
+        this.size = particleObj.size;
     }
 
     #render(){
-        const particleRenderTask = RendererAPI.ParticleRenderTask(this.engineAPI, {texture: this.texture, color: this.color, position: this.position, rotation: this.rotation, transparency: this.transparency});
+        const particleRenderTask = new RendererAPI.ParticleRenderTask(this.engineAPI, {texture: this.texture, color: this.color, position: this.position, rotation: this.rotation, transparency: this.transparency, size: this.size});
         this.engineAPI.engine.renderer.addRenderTask(particleRenderTask);
     }
     //#endregion
@@ -140,6 +144,8 @@ class ParticleEmitterInstance{
     #runtime = 0;
     #lastUpdateTime = performance.now();
     #systemInstance;
+    #timeLastBurst = 0;
+    #continousTimer = 0;
 
     // Attributes
     #lifeSpan;
@@ -148,13 +154,14 @@ class ParticleEmitterInstance{
     #acceleration;
     #rotation;
     #angularVelocity;
+    #size;
     #textureName;
     #color;
     #transparency;
     #spawnDelay;
     #amountOfBursts;
-    #burstInterval;
     #burstCount;
+    #burstInterval;   
     #continuousRate;
     #maxParticleCount;
 
@@ -180,6 +187,7 @@ class ParticleEmitterInstance{
 
     constructor(engineAPI, emitterConfig, systemInstance){
         this.engineAPI = engineAPI;
+        this.p5 = engineAPI.p5;
         this.#emitterConfig = emitterConfig;
         this.#systemInstance = systemInstance;
     }
@@ -187,11 +195,12 @@ class ParticleEmitterInstance{
     //#region Particle Emitter Callbacks
     Start(){
         this.Play();
+        
     }
 
     Update(){
         if (!this.#enabled) return;
-
+        
         const dt = Math.min(performance.now() - this.#lastUpdateTime, 50); // Capping the delta time to 50ms to prevent unwanted behavior
         this.#runtime += dt;
 
@@ -206,6 +215,8 @@ class ParticleEmitterInstance{
         this.#particles = [];
         this.#runtime = 0;
         this.#lastUpdateTime = performance.now();
+        this.#timeLastBurst = 0;
+        this.#continousTimer = 0;
     }
 
     #initailizeAttributes(){
@@ -216,6 +227,8 @@ class ParticleEmitterInstance{
         this.#acceleration = this.#emitterConfig.startAttributes.acceleration;
         this.#rotation = this.#emitterConfig.startAttributes.rotation;
         this.#angularVelocity = this.#emitterConfig.startAttributes.angularVelocity;
+
+        
 
         // Render Atributes
         this.#textureName = this.#emitterConfig.renderAttributes.textureName;
@@ -229,6 +242,7 @@ class ParticleEmitterInstance{
         this.#burstInterval = this.#emitterConfig.spawnBehavior.burstInterval;
         this.#burstCount = this.#emitterConfig.spawnBehavior.burstCount;
 
+
         this.#continuousRate = this.#emitterConfig.spawnBehavior.continuousRate; // Particles per second
         this.#maxParticleCount = this.#emitterConfig.spawnBehavior.maxParticleCount;
 
@@ -236,41 +250,83 @@ class ParticleEmitterInstance{
         this.#colorOverTimeData = this.#emitterConfig.overLifetime.colorOverTimeData;
         this.#sizeOverTimeData = this.#emitterConfig.overLifetime.sizeOverTimeData;
         this.#transparencyOverTimeData = this.#emitterConfig.overLifetime.transparencyOverTimeData;
-        this.#rotationOverTimeData = this.#emitterConfig.overLifetime.rotationOverTimeDatae;
-        this.#velocityOverTimeData = this.#emitterConfig.overLifetime.velocityOverTimeData;
-        this.#accelerationOverTimeData = this.#emitterConfig.overLifetime.accelerationOverTimeData;
-        this.#angularVelocityOverTimeData = this.#emitterConfig.overLifetime.angularVelocityOverTimeData;
-
+        
         // Over Lifetime Emmiter Behaviors
         this.#continuousRateOverTimeData = this.#emitterConfig.overLifetime.continuousRateOverTimeData;
     }
 
     #updateParticles(dt){
         //#region Update Logic
+        this.#timeLastBurst += dt;
+        this.#continousTimer += dt;
+
         for (const particle of this.#particles){
             // Apply Lifetime Behaviors
-            if (this.#colorOverTimeData.curve === "linear") particle.color = ScriptingAPI.lerpColor(this.#colorOverTimeData.color1, this.#colorOverTimeData.color2, 1 - (particle.lifeRemaining / this.#lifeSpan)); // use custom color lerp function from scriptingAPI, colors must be in the form of {r: 0-255, g: 0-255, b: 0-255}
+            if (this.#colorOverTimeData.curve === "linear") particle.color = ScriptingAPI.lerpColor(this.#colorOverTimeData.color1, this.#colorOverTimeData.color2, 1 - (particle.lifeRemaining / this.#lifeSpan)); // custom color lerp function from scriptingAPI, colors must be in the form of {r: 0-255, g: 0-255, b: 0-255}
             if (this.#sizeOverTimeData.curve === "linear") particle.size = this.#applyLinearCurveOverTime(this.#sizeOverTimeData.size1, this.#sizeOverTimeData.size2, 1 - (particle.lifeRemaining / this.#lifeSpan));
             if (this.#transparencyOverTimeData.curve === "linear") particle.transparency = this.#applyLinearCurveOverTime(this.#transparencyOverTimeData.transparency1, this.#transparencyOverTimeData.transparency2, 1 - (particle.lifeRemaining / this.#lifeSpan));
-            if (this.#rotationOverTimeData.curve === "linear") particle.rotation = this.#applyLinearCurveOverTime(this.#rotationOverTimeData.rotation1, this.#rotationOverTimeData.rotation2, 1 - (particle.lifeRemaining / this.#lifeSpan));
-            if (this.#velocityOverTimeData.curve === "linear") particle.velocity = {x: this.#applyLinearCurveOverTime(this.#velocityOverTimeData.velocity1.x, this.#velocityOverTimeData.velocity2.x, 1 - (particle.lifeRemaining / this.#lifeSpan)), y: this.#applyLinearCurveOverTime(this.#velocityOverTimeData.velocity1.y, this.#velocityOverTimeData.velocity2.y, 1 - (particle.lifeRemaining / this.#lifeSpan))};
-            if (this.#accelerationOverTimeData.curve === "linear") particle.acceleration = {x: this.#applyLinearCurveOverTime(this.#accelerationOverTimeData.acceleration1.x, this.#accelerationOverTimeData.acceleration2.x, 1 - (particle.lifeRemaining / this.#lifeSpan)), y: this.#applyLinearCurveOverTime(this.#accelerationOverTimeData.acceleration1.y, this.#accelerationOverTimeData.acceleration2.y, 1 - (particle.lifeRemaining / this.#lifeSpan))};
-            if (this.#angularVelocityOverTimeData.curve === "linear") particle.angularVelocity = this.#applyLinearCurveOverTime(this.#angularVelocityOverTimeData.angularVelocity1, this.#angularVelocityOverTimeData.angularVelocity2, 1 - (particle.lifeRemaining / this.#lifeSpan));
+            if (this.#sizeOverTimeData.curve === "linear") particle.size = this.#applyLinearCurveOverTime(this.#sizeOverTimeData.size1, this.#sizeOverTimeData.size2, 1 - (particle.lifeRemaining / this.#lifeSpan));
 
             particle.lifeRemaining -= dt;
             particle.Update(dt);
+
+            if (particle.lifeRemaining <= 0){
+                this.#particles.splice(this.#particles.indexOf(particle), 1);
+            }
         }
         //#endregion
 
-
-
         //#region Spawn Logic
+        if (this.#runtime < this.#spawnDelay) return;
+        
+
+        //spawn particles in bursts
+        if (this.#amountOfBursts > 0 && this.#timeLastBurst >= this.#burstInterval){
+            
+            for (let i = 0; i < this.#burstCount; i++){
+                this.#spawnParticle();
+            }
+
+            this.#amountOfBursts--;
+        }
+
+        //spawn particles continuously
+        const particlesToSpawn = Math.floor(this.#continousTimer / (1000 / this.#continuousRate))
+        for (let i = 0; i < particlesToSpawn; i++){
+            if (this.#particles.length >= this.#maxParticleCount) break;
+            this.#spawnParticle();
+        }
+
+        this.#continousTimer -= particlesToSpawn * (1000 / this.#continuousRate);
+
 
         //#endregion
     }
 
     #applyLinearCurveOverTime(value1, value2, fraction){
         return value1 + (value2 - value1) * fraction;
+    }
+
+    #spawnParticle(){
+        const generateVectorInRange = (vector1, vector2) => {
+            const biggerX = vector1.x > vector2.x ? vector1.x : vector2.x;
+            const smallerX = vector1.x < vector2.x ? vector1.x : vector2.x;
+            const biggerY = vector1.y > vector2.y ? vector1.y : vector2.y;
+            const smallerY = vector1.y < vector2.y ? vector1.y : vector2.y;
+            
+            return {x: this.p5.random(smallerX, biggerX), y: this.p5.random(smallerY, biggerY)};
+        }
+
+        const multiplyVector = (vector, scalar) => {
+            return {x: vector.x * scalar, y: vector.y * scalar};
+        }
+
+        const randomPos = generateVectorInRange({x:this.#position.x1, y:this.#position.y1}, {x:this.#position.x2, y:this.#position.y2});
+        const randomVel = multiplyVector(generateVectorInRange({x:this.#velocity.x1, y:this.#velocity.y1}, {x:this.#velocity.x2, y:this.#velocity.y2}), this.#velocity.scalar);
+        const randomAcc = multiplyVector(generateVectorInRange({x:this.#acceleration.x1, y:this.#acceleration.y1}, {x:this.#acceleration.x2, y:this.#acceleration.y2}), this.#acceleration.scalar);
+        const randomRot = this.p5.random(this.#rotation.z1, this.#rotation.z2);
+        const randomAngVel = this.p5.random(this.#angularVelocity.z1, this.#angularVelocity.z2);
+        this.#particles.push(new ParticleInstance(this.engineAPI, {textureName: this.#textureName, color: this.#color, position: randomPos, velocity: randomVel, acceleration: randomAcc, rotation: randomRot, angularVelocity: randomAngVel, transparency: this.#transparency, lifeSpan: this.#lifeSpan, size: this.#sizeOverTimeData.size1}));
     }
 
     //#endregion
@@ -307,6 +363,7 @@ class SystemOfEmittersInstance{
 
     Update(){
         if (!this.#enabled) return;
+
         for (const emitterName in this.#emitters){
             this.#emitters[emitterName].Update();
         }

@@ -16,7 +16,10 @@
             }
         },
         "textures":[
-             
+            {
+                "name":"particles-single",
+                "path":"/assets/textures/particles-single.png"
+            }
         ],
         "audio":[
 

@@ -15,7 +15,7 @@ class RendererLoaders{
 
                 for (const stateMachineName in stateMachines){
                     const stateMachine = stateMachines[stateMachineName];
-                    const sm = await this.loadJSONAsync(stateMachine.pathToStateMachineConfig);
+                    const sm = await this.#loadJSONAsync(stateMachine.pathToStateMachineConfig);
                     loadedMachines[stateMachine.stateMachineName] = sm;
                 }
 
@@ -35,7 +35,7 @@ class RendererLoaders{
 
                 for (const animName in gameConfig.assets.animations){
                     const anim = gameConfig.assets.animations[animName];
-                    const animConfig = await this.loadJSONAsync(anim.pathToAnimationConfig);
+                    const animConfig = await this.#loadJSONAsync(anim.pathToAnimationConfig);
                     animations[animName] = animConfig;
                 }
 
@@ -56,7 +56,7 @@ class RendererLoaders{
 
                 for (const animName in animations){
                     const anim = animations[animName];
-                    const img = await this.loadImageAsync(anim.pathToSpriteSheet);
+                    const img = await this.#loadImageAsync(anim.pathToSpriteSheet);
                     animationsSheets[animName] = img;
                 }
 
@@ -73,7 +73,7 @@ class RendererLoaders{
             try {
                 const textures = {};
                 const promises = gameConfig.assets.textures.map(async (texture) => {
-                    const img = await loadImageAsync(texture.path);
+                    const img = await this.#loadImageAsync(texture.path);
                     textures[texture.name] = img;
                 });
 
@@ -85,7 +85,8 @@ class RendererLoaders{
         });
     }
 
-    loadImageAsync(path){
+    //#region Private Methods
+    #loadImageAsync(path){
         return new Promise((resolve, reject) => {
             this.p5.loadImage(path, (img) => {
                 resolve(img);
@@ -95,7 +96,7 @@ class RendererLoaders{
         });
     }
 
-    loadJSONAsync(path){
+    #loadJSONAsync(path){
         return new Promise((resolve, reject) => {
             this.p5.loadJSON(path, (json) => {
                 resolve(json);
@@ -104,6 +105,7 @@ class RendererLoaders{
             });
         });
     }
+    //#endregion
     
 }
 
@@ -188,7 +190,7 @@ class CircleColliderRenderTask extends BaseRenderTask{
 }
 
 class ParticleRenderTask extends BaseRenderTask{
-    constructor(engineAPI, {texture, position, rotation, transparency, color}){
+    constructor(engineAPI, {texture, position, rotation, transparency, color, size}){
         super(engineAPI);
         this.x = position.x;
         this.y = position.y;
@@ -196,16 +198,26 @@ class ParticleRenderTask extends BaseRenderTask{
         this.rotation = rotation;
         this.transparency = transparency;
         this.color = color;
+        this.size = size;
     }
 
     render(){
         this.p5.push();
+        
         this.p5.translate(this.x, this.y);
         this.p5.rotate(this.rotation);
         this.p5.noFill();
         this.p5.noStroke();
+        this.p5.imageMode(this.p5.CENTER);
+        this.p5.scale(this.size, this.size);
+        
         this.p5.tint(this.color.r, this.color.g, this.color.b, this.transparency);
+
+
         this.p5.image(this.texture, 0, 0);
+        
+        //this.p5.fill(this.p5.color(this.color.r, this.color.g, this.color.b, this.transparency));
+        this.p5.circle(0, 0, 10);
         this.p5.pop();
     }
 }
@@ -323,6 +335,7 @@ export class RendererAPI{
     static AnimationRenderTask = AnimationRenderTask;
     static BoxColliderRenderTask = BoxColliderRenderTask;
     static CircleColliderRenderTask = CircleColliderRenderTask;
+    static ParticleRenderTask = ParticleRenderTask;
     static CustomRenderTask = CustomRenderTask;
 }
 
