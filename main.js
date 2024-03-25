@@ -7,14 +7,14 @@
 
 
 //#region Imports
-import Renderer from './engineModules/systems/renderer.js';
-import InputSystem from './engineModules/systems/inputSystem.js';
-import PhysicsSystem from './engineModules/systems/physicsSystem.js';
-import ScriptingSystem from './engineModules/systems/scriptingSystem.js';
-import AudioSystem from './engineModules/systems/audioSystem.js';
-import ParticleSystem from './engineModules/systems/particleSystem.js';
+import Renderer from '../engineModules/systems/renderer.js';
+import InputSystem from '../engineModules/systems/inputSystem.js';
+import PhysicsSystem from '../engineModules/systems/physicsSystem.js';
+import ScriptingSystem from '../engineModules/systems/scriptingSystem.js';
+import AudioSystem from '../engineModules/systems/audioSystem.js';
+import ParticleSystem from '../engineModules/systems/particleSystem.js';
 
-import {GameObjectInstance, Camera}  from './engineModules/engineObjects.js';
+import {GameObjectInstance, Camera}  from '../engineModules/engineObjects.js';
 //#endregion
 
 
