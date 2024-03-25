@@ -148,6 +148,48 @@ export default class Rigidbody extends ComponentBase {
     }
     //#endregion
 
+    //#region Getters
+    get position(){
+        return this.composite.position;
+    }
+
+    get velocity(){
+        return this.composite.velocity;
+    }
+
+    get angle(){
+        return this.composite.angle;
+    }
+
+    get rotation(){
+        return this.composite.angle;
+    }
+
+    get angularVelocity(){
+        return this.composite.angularVelocity;
+    }
+
+    get mass(){
+        return this.composite.mass;
+    }
+
+    get inertia(){
+        return this.composite.inertia;
+    }
+
+    get bounds(){
+        return this.composite.bounds;
+    }
+
+    get isStatic(){
+        return this.composite.isStatic;
+    }
+
+    get acceleration(){
+        return this.composite.acceleration;
+    }
+
+    //#endregion
 }
 
 

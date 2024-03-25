@@ -36,7 +36,7 @@ export default class InputSystem extends ModuleBase{
             throw new Error(`Input ${name} does not exist`);
         }
 
-        return this.#inputs[name].keyIsPressed;
+        return this.#inputs[name].value;
     }
 
     getInputDown(name){
@@ -48,7 +48,12 @@ export default class InputSystem extends ModuleBase{
     }
 
     getInputUp(name){
+        if (this.#inputs[name] === undefined){
+            throw new Error(`Input ${name} does not exist`);
+        }
+
         return this.#inputs[name].keyUp;
+
     }
     //#endregion
 }
@@ -92,6 +97,7 @@ class Input{
         for (let i = 0; i < this.#binds.length; i++){
             if (this.p5.keyIsDown(this.#binds[i].key)){
                 this.keyIsPressed = true;
+                this.value = this.#binds[i].value;
                 anyBindIsDown = true;
 
                 if (!this.#keyAlreadyDown){
@@ -105,6 +111,7 @@ class Input{
 
         if (!anyBindIsDown){
             this.keyIsPressed = false;
+            this.value = this.#defaultValue;
             if (!this.#keyAlreadyUp){
                 this.keyUp = true;
                 this.#keyAlreadyUp = true;

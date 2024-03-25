@@ -26,9 +26,22 @@ export default class PlayerMovement extends ScriptingAPI.MonoBehaviour {
             
         }
 
-        if (this.engineAPI.engine.inputSystem.getInput("MovementY")) {
-            this.gameObject.components.Rigidbody.translate(0, -20);
+        const MovementY = this.engineAPI.engine.inputSystem.getInput("MovementY");
+        const MovementX = this.engineAPI.engine.inputSystem.getInput("MovementX");
+        const rb = this.gameObject.components.Rigidbody;
+        
+        if (Math.abs(MovementY) > 0.1) {
+            rb.translate(0, MovementY * -20);
+            rb.setVelocity(rb.velocity.x, 0);
         }
+        
+        if (Math.abs(MovementX) > 0.1) {
+            rb.translate(MovementX * 20, 0);
+            rb.setVelocity(0, rb.velocity.y);
+        }
+        
+
+        
 
         
         
