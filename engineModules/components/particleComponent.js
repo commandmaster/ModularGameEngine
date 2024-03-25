@@ -74,6 +74,7 @@ class ParticleEmitterInstance{
     //#region Private Fields
     #particles = [];
     #enabled = false;
+    #shouldFadeOut = false;
     #emitterConfig = {};
     #runtime = 0;
     #lastUpdateTime = performance.now();
@@ -130,7 +131,7 @@ class ParticleEmitterInstance{
     }
 
     Update(){
-        if (!this.#enabled) return;
+        if (!this.#enabled && !this.#shouldFadeOut) return;
         
         const dt = Math.min(performance.now() - this.#lastUpdateTime, 50); // Capping the delta time to 50ms to prevent unwanted behavior
         this.#runtime += dt;
@@ -216,6 +217,8 @@ class ParticleEmitterInstance{
         }
         //#endregion
 
+
+        if (!this.#enabled) return;
         //#region Spawn Logic
         if (this.#runtime < this.#spawnDelay) return;
         
@@ -301,7 +304,8 @@ class ParticleEmitterInstance{
         this.#enabled = true;
     }
 
-    Stop(){
+    Stop(shouldFadeOut = false){
+        this.#shouldFadeOut = shouldFadeOut;
         this.#enabled = false;
     }
     //#endregion
@@ -329,8 +333,6 @@ class SystemOfEmitters{
     }
 
     Update(){
-        if (!this.#enabled) return;
-
         for (const emitterName in this.#emitters){
             this.#emitters[emitterName].Update();
         }
@@ -362,10 +364,10 @@ class SystemOfEmitters{
         }
     }
 
-    Stop(){
+    Stop(shouldFadeOut = false){
         this.#enabled = false;
         for (const emitterName in this.#emitters){
-            this.#emitters[emitterName].Stop();
+            this.#emitters[emitterName].Stop(shouldFadeOut);
         }
     }
     //#endregion
@@ -381,11 +383,19 @@ class SystemOfEmitters{
 export default class ParticleComponent extends ComponentBase{
     constructor(engineAPI, componentConfig, gameObject){
         super(engineAPI, componentConfig, gameObject);
-    }
 
-    Start(){
         const systemConfig = this.engineAPI.engine.particleSystem.systemConfigs[this.componentConfig.name];
         this.systemInstance = new SystemOfEmitters(this.engineAPI, systemConfig, this.gameObject);
         this.engineAPI.engine.particleSystem.SpawnSystem(this.systemInstance);
+    }
+
+
+
+    Play(){
+        this.systemInstance.Play();
+    }
+
+    Stop(shouldFadeOut = false){
+        this.systemInstance.Stop(shouldFadeOut);
     }
 }

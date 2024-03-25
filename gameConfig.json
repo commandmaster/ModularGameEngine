@@ -27,6 +27,17 @@
         "fonts":[
 
         ],
+        "inputs":[
+            {
+                "inputName":"jump",
+                "binds":[
+                    "Space"
+                ],
+                "type":"keyboard",
+                "actionType":"bool",
+                "defaultValue":false
+            }
+        ],
         "scripts":[
             "playerMovement"
         ],
@@ -75,6 +86,13 @@
                         },
                         "ParticleSystem":{
                             "name":"testSystem1"
+                        },
+                        "ScriptingComponent":{
+                            "scripts":[
+                                {
+                                    "name":"playerMovement"
+                                }
+                            ]
                         }
                     }
                 },
@@ -163,13 +181,6 @@
                             "radius":100,
                             "offsetX":0,
                             "offsetY":0
-                        }
-                    ]
-                },
-                "ScriptingComponent":{
-                    "scripts":[
-                        {
-                            "name":"playerMovement"
                         }
                     ]
                 },
