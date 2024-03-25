@@ -1,5 +1,5 @@
-import ComponentBase from "./componentBase";
-
+import ComponentBase from "./componentBase.js";
+import { RendererAPI } from "../systems/renderer.js";
 
 
 class ParticleInstance{
@@ -7,6 +7,7 @@ class ParticleInstance{
     texture;
     color;
     position;
+    localPosition;
     velocity;
     acceleration;
     rotation;
@@ -33,8 +34,8 @@ class ParticleInstance{
         this.velocity.x += this.acceleration.x * dt / 1000;
         this.velocity.y += this.acceleration.y * dt / 1000;
 
-        this.position.x += this.velocity.x * dt / 1000; 
-        this.position.y += this.velocity.y * dt / 1000;
+        this.localPosition.x += this.velocity.x * dt / 1000; 
+        this.localPosition.y += this.velocity.y * dt / 1000;
 
         this.rotation += this.angularVelocity * dt / 1000;
 
@@ -54,6 +55,7 @@ class ParticleInstance{
         this.transparency = particleObj.transparency;
         this.lifeRemaining = particleObj.lifeSpan;
         this.size = particleObj.size;
+        this.localPosition = particleObj.localPosition;
     }
 
     #render(){
@@ -196,6 +198,14 @@ class ParticleEmitterInstance{
             if (this.#transparencyOverTimeData.curve === "linear") particle.transparency = this.#applyLinearCurveOverTime(this.#transparencyOverTimeData.transparency1, this.#transparencyOverTimeData.transparency2, 1 - (particle.lifeRemaining / this.#lifeSpan));
             if (this.#sizeOverTimeData.curve === "linear") particle.size = this.#applyLinearCurveOverTime(this.#sizeOverTimeData.size1, this.#sizeOverTimeData.size2, 1 - (particle.lifeRemaining / this.#lifeSpan));
 
+            if (this.#systemInstance.spawningSpace === "local"){
+                particle.position = {x: particle.localPosition.x + this.#systemInstance.gameObject.components.Transform.worldPosition.x, y: particle.localPosition.y + this.#systemInstance.gameObject.components.Transform.worldPosition.y};
+            }
+
+            else if (this.#systemInstance.spawningSpace === "world"){
+                particle.position = {x: particle.localPosition.x, y: particle.localPosition.y};
+            }
+
             particle.lifeRemaining -= dt;
             particle.Update(dt);
 
@@ -250,15 +260,33 @@ class ParticleEmitterInstance{
             return {x: vector.x * scalar, y: vector.y * scalar};
         }
 
+        // This is really the offset from the parent objects world or local position depending on the spawning space configuration
         const randomPos = {x: this.#position.x, y: this.#position.y}
         randomPos.x += this.p5.random(-this.#spawnRadius, this.#spawnRadius);
         randomPos.y += this.p5.random(-this.#spawnRadius, this.#spawnRadius);
+
+        // Even if the spawning space is local, the position is still offset by the parent objects world position
+        // The only change is that the the random postion is now not going to be changed with the parent in the update loop while in world space
+        // In local space the offset is still applied so the position is still relative to the parent object
+        let position;
+        let localPosition;
+        if (this.#systemInstance.spawningSpace === "local"){
+            position = {x: randomPos.x + this.#systemInstance.gameObject.components.Transform.worldPosition.x, y: randomPos.y + this.#systemInstance.gameObject.components.Transform.worldPosition.y};
+            localPosition = {x: randomPos.x, y: randomPos.y};
+        }
+
+        else if (this.#systemInstance.spawningSpace === "world"){
+            position = {x: randomPos.x + this.#systemInstance.gameObject.components.Transform.worldPosition.x, y: randomPos.y + this.#systemInstance.gameObject.components.Transform.worldPosition.y};
+            localPosition = {x: randomPos.x + this.#systemInstance.gameObject.components.Transform.worldPosition.x, y: randomPos.y + this.#systemInstance.gameObject.components.Transform.worldPosition.y};
+        }
+        
+
 
         const randomVel = multiplyVector(generateVectorInRange({x:this.#velocity.x1, y:this.#velocity.y1}, {x:this.#velocity.x2, y:this.#velocity.y2}), this.#velocity.scalar);
         const randomAcc = multiplyVector(generateVectorInRange({x:this.#acceleration.x1, y:this.#acceleration.y1}, {x:this.#acceleration.x2, y:this.#acceleration.y2}), this.#acceleration.scalar);
         const randomRot = this.p5.random(this.#rotation.z1, this.#rotation.z2);
         const randomAngVel = this.p5.random(this.#angularVelocity.z1, this.#angularVelocity.z2);
-        this.#particles.push(new ParticleInstance(this.engineAPI, {textureName: this.#textureName, color: this.#color, position: randomPos, velocity: randomVel, acceleration: randomAcc, rotation: randomRot, angularVelocity: randomAngVel, transparency: this.#transparency, lifeSpan: this.#lifeSpan, size: this.#sizeOverTimeData.size1}));
+        this.#particles.push(new ParticleInstance(this.engineAPI, {textureName: this.#textureName, color: this.#color, position, localPosition, velocity: randomVel, acceleration: randomAcc, rotation: randomRot, angularVelocity: randomAngVel, transparency: this.#transparency, lifeSpan: this.#lifeSpan, size: this.#sizeOverTimeData.size1}));
     }
 
     //#endregion
@@ -276,7 +304,7 @@ class ParticleEmitterInstance{
     //#endregion
 }
 
-export default class SystemOfEmitters{
+class SystemOfEmitters{
     //#region Private Fields
     #emitters = {};
     #enabled = false;
@@ -346,3 +374,17 @@ export default class SystemOfEmitters{
     //#endregion
 }
 
+
+export default class ParticleComponent extends ComponentBase{
+    constructor(engineAPI, componentConfig, gameObject){
+        super(engineAPI, componentConfig, gameObject);
+    }
+
+    Start(){
+        console.log("started")
+
+        const systemConfig = this.engineAPI.engine.particleSystem.systemConfigs[this.componentConfig.name];
+        this.systemInstance = new SystemOfEmitters(this.engineAPI, systemConfig, this.gameObject);
+        this.engineAPI.engine.particleSystem.SpawnSystem(this.systemInstance);
+    }
+}

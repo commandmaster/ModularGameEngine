@@ -7,7 +7,7 @@ export default class PlayerMovement extends ScriptingAPI.MonoBehaviour {
 
     Start() {
         console.log(this.engine.particleSystem)
-        this.engine.particleSystem.SpawnSystem("testSystem1")   
+        //this.engine.particleSystem.SpawnSystem("testSystem1")   
     }
 
     Update() {

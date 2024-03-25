@@ -2,6 +2,7 @@ import Transform from "./components/transform.js";
 import Rigidbody from "./components/rigidbody.js";
 import Script from "./components/script.js";
 import StateMachine from "./components/stateMachine.js";
+import ParticleComponent from "./components/particleComponent.js";
 
 
 
@@ -63,6 +64,10 @@ export class GameObjectInstance {
 
         if (componentName === "ScriptingComponent"){
             this.components[componentName] = new Script(this.engineAPI, componentConfig, this);
+        }
+
+        if (componentName === "ParticleSystem"){
+            this.components[componentName] = new ParticleComponent(this.engineAPI, componentConfig, this);
         }
     }
 
