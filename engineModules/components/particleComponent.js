@@ -171,6 +171,7 @@ class ParticleEmitterInstance{
 
         this.#amountOfBursts = this.#emitterConfig.spawnBehavior.amountOfBursts;
         this.#burstInterval = this.#emitterConfig.spawnBehavior.burstInterval;
+        this.#timeLastBurst = this.#burstInterval;
         this.#burstCount = this.#emitterConfig.spawnBehavior.burstCount;
 
         this.#spawnRadius = this.#emitterConfig.spawnBehavior.spawnRadius;
@@ -225,6 +226,8 @@ class ParticleEmitterInstance{
             for (let i = 0; i < this.#burstCount; i++){
                 this.#spawnParticle();
             }
+
+            this.#timeLastBurst = 0;
 
             this.#amountOfBursts--;
         }
@@ -381,8 +384,6 @@ export default class ParticleComponent extends ComponentBase{
     }
 
     Start(){
-        console.log("started")
-
         const systemConfig = this.engineAPI.engine.particleSystem.systemConfigs[this.componentConfig.name];
         this.systemInstance = new SystemOfEmitters(this.engineAPI, systemConfig, this.gameObject);
         this.engineAPI.engine.particleSystem.SpawnSystem(this.systemInstance);
