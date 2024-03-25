@@ -68,6 +68,7 @@ class ParticleInstance{
     forceDestroy(){
         this.lifeRemaining = 0;
     }
+    //#endregion
 }
 
 class ParticleEmitterInstance{
@@ -105,16 +106,8 @@ class ParticleEmitterInstance{
     #colorOverTimeData;
     #sizeOverTimeData;
     #transparencyOverTimeData;
-
-
-
     //#endregion
 
-
-
-    //#region Public Fields
-    
-    //#endregion
 
 
 
@@ -376,6 +369,10 @@ class SystemOfEmitters{
     get config (){
         return this.#systemConfig;
     }
+
+    get IsEnabled(){
+        return this.#enabled;
+    }
     //#endregion
 }
 
@@ -397,5 +394,9 @@ export default class ParticleComponent extends ComponentBase{
 
     Stop(shouldFadeOut = false){
         this.systemInstance.Stop(shouldFadeOut);
+    }
+
+    IsEnabled(){
+        return this.systemInstance.IsEnabled;
     }
 }

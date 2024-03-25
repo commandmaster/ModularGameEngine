@@ -31,12 +31,22 @@
             {
                 "inputName":"jump",
                 "binds":[
-                    "Space"
+                    {"key":"SPACE", "value":true}
                 ],
                 "type":"keyboard",
-                "actionType":"bool",
-                "defaultValue":false
+                "actionType":"bool"
+
+            },
+            {
+                "inputName":"MovementX",
+                "binds":[
+                    {"key":"RIGHT_ARROW", "value":1},
+                    {"key":"LEFT_ARROW", "value":-1}
+                ],
+                "type":"keyboard",
+                "actionType":"axis"
             }
+
         ],
         "scripts":[
             "playerMovement"
