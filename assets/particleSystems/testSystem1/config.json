@@ -54,7 +54,7 @@
                 "spawnRadius": 10
             },
             "overLifetime": {
-                "colorOverTimeData": {"curve":"linear", "color1": {"r": 255, "g": 255, "b": 0}, "color2": {"r": 255, "g": 255, "b": 0}},
+                "colorOverTimeData": {"curve":"linear", "color1": {"r": 255, "g": 255, "b": 0}, "color2": {"r": 0, "g": 255, "b": 255}},
                 "sizeOverTimeData": {"curve":"linear", "size1": 0.1, "size2": 3 },
                 "transparencyOverTimeData": {"curve":"linear", "transparency1": 500, "transparency2": 50}
             }

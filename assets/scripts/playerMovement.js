@@ -26,6 +26,10 @@ export default class PlayerMovement extends ScriptingAPI.MonoBehaviour {
             
         }
 
+        if (this.engineAPI.engine.inputSystem.getInput("MovementY")) {
+            this.gameObject.components.Rigidbody.translate(0, -20);
+        }
+
         
         
     }
